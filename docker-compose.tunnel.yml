@@ -1,0 +1,46 @@
+# ╔══════════════════════════════════════════════════════════════════════════════════╗
+# ║                         NESTFY — Local Tunneling Layer                           ║
+# ║                                                                                ║
+# ║  This compose file exposes the local backend to the public internet.          ║
+# ║  Required for the Vercel frontend to failover to the local environment.        ║
+# ║                                                                                ║
+# ║  Choose either Cloudflare Tunnel (cloudflared) or Ngrok below.                 ║
+# ╚══════════════════════════════════════════════════════════════════════════════════╝
+
+services:
+
+  # ─────────────────────────────────────────────────────────────
+  # Option 1: Cloudflare Tunnel (Recommended — Free & Auto-SSL)
+  # Run with: CLOUDFLARE_TUNNEL_TOKEN=xxx docker compose -f docker-compose.tunnel.yml up -d cloudflared
+  # ─────────────────────────────────────────────────────────────
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: nestfy-tunnel-cloudflare
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    networks:
+      - Nestfy-network
+
+  # ─────────────────────────────────────────────────────────────
+  # Option 2: Ngrok (Requires free account authtoken)
+  # Run with: NGROK_AUTHTOKEN=xxx docker compose -f docker-compose.tunnel.yml up -d ngrok
+  # ─────────────────────────────────────────────────────────────
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: nestfy-tunnel-ngrok
+    restart: unless-stopped
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    command: http backend:8080
+    ports:
+      - "4040:4040" # Ngrok local dashboard (http://localhost:4040)
+    networks:
+      - Nestfy-network
+
+# ─────────────────────────────────────────────────────────────
+# Network — Attach to the shared Nestfy-network bridge
+# ─────────────────────────────────────────────────────────────
+networks:
+  Nestfy-network:
+    external: true
+    name: Nestfy-network

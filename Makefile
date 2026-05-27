@@ -21,7 +21,7 @@ else
     RM_NETWORK = docker network rm Nestfy-network 2>/dev/null || true
 endif
 
-.PHONY: network infra backend frontend up down clean logs-infra logs-backend logs-frontend status rebuild
+.PHONY: network infra backend frontend up down clean logs-infra logs-backend logs-frontend status rebuild tunnel ci-cd-local
 
 # ─── Network ──────────────────────────────────────────────────
 network:
@@ -113,3 +113,23 @@ status:
 	@echo "║  Nestfy Container Status                 ║"
 	@echo "╚══════════════════════════════════════════╝"
 	@docker ps --filter "network=Nestfy-network" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+# ─── Local Tunnel ─────────────────────────────────────────────
+tunnel:
+	@echo "╔══════════════════════════════════════════╗"
+	@echo "║  Starting Local Tunneling Services...    ║"
+	@echo "║  Exposing local backend to Vercel        ║"
+	@echo "╚══════════════════════════════════════════╝"
+	docker compose -f docker-compose.tunnel.yml up -d
+
+# ─── Local CI/CD Pipeline ─────────────────────────────────────
+ci-cd-local:
+	@echo "╔══════════════════════════════════════════╗"
+	@echo "║  Triggering Local CI/CD Suite...         ║"
+	@echo "╚══════════════════════════════════════════╝"
+ifeq ($(OS),Windows_NT)
+	powershell -ExecutionPolicy Bypass -File ./bin/ci-cd-local.ps1
+else
+	chmod +x ./bin/ci-cd-local.sh
+	./bin/ci-cd-local.sh
+endif

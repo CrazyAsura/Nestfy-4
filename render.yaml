@@ -1,0 +1,89 @@
+# ╔══════════════════════════════════════════════════════════════════════════════════╗
+# ║                   NESTFY — Render Blueprint Infrastructure                       ║
+# ║                                                                                ║
+# ║  This blueprint defines the backend web service and the databases on Render.    ║
+# ║  Deploys automatically with single-click provisioning.                         ║
+# ╚══════════════════════════════════════════════════════════════════════════════════╝
+
+services:
+  # ─────────────────────────────────────────────────────────────
+  # Spring Boot Backend Web Service
+  # ─────────────────────────────────────────────────────────────
+  - type: web
+    name: nestfy-backend
+    env: docker
+    dockerContext: backend
+    dockerfilePath: Dockerfile
+    plan: free # Free tier plan
+    region: oregon # Deployment region
+    envVars:
+      # Spring Active Profiles
+      - key: SPRING_PROFILES_ACTIVE
+        value: docker
+
+      # JVM Memory Tuning for Free Tier (512MB RAM)
+      - key: JAVA_OPTS
+        value: -XX:+UseSerialGC -Xmx256m -XX:MaxMetaspaceSize=100m -XX:ReservedCodeCacheSize=64m -Xss256k
+      - key: SPRING_MAIN_LAZY_INITIALIZATION
+        value: "true"
+
+      # Dynamic Port Binding
+      - key: PORT
+        value: 10000
+
+      # Database Integration (Links to Render PostgreSQL database defined below)
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:postgresql://${nestfy_postgres_db_host}:${nestfy_postgres_db_port}/nestfy_db
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: nestfy-postgres-db
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: nestfy-postgres-db
+          property: password
+
+      # Redis Integration (Links to Render Redis defined below)
+      - key: SPRING_DATA_REDIS_HOST
+        fromService:
+          type: redis
+          name: nestfy-redis-cache
+          property: host
+      - key: SPRING_DATA_REDIS_PORT
+        fromService:
+          type: redis
+          name: nestfy-redis-cache
+          property: port
+      - key: SPRING_DATA_REDIS_PASSWORD
+        fromService:
+          type: redis
+          name: nestfy-redis-cache
+          property: password
+
+      # MongoDB integration (Requires external connection string e.g., MongoDB Atlas)
+      - key: SPRING_MONGODB_URI
+        sync: false
+
+      # Kafka integration (Requires external connection string e.g., Upstash or Confluent)
+      - key: SPRING_KAFKA_BOOTSTRAP_SERVERS
+        sync: false
+
+      # Security user configurations
+      - key: SPRING_SECURITY_USER_NAME
+        value: super-admin@nestfy.com
+      - key: SPRING_SECURITY_USER_PASSWORD
+        generateValue: true
+
+# ─────────────────────────────────────────────────────────────
+# Databases & Infrastructure Services
+# ─────────────────────────────────────────────────────────────
+database:
+  name: nestfy-postgres-db
+  databaseName: nestfy_db
+  user: nestfy_admin
+  plan: free
+
+redis:
+  name: nestfy-redis-cache
+  plan: free
+  ipAllowList: []

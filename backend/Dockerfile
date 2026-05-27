@@ -55,10 +55,13 @@ RUN apk add --no-cache curl
 # Switch to non-root user
 USER nestfy
 
-# JVM tuning — container-aware memory settings
-ENV JAVA_OPTS="-XX:+UseZGC \
-               -XX:MaxRAMPercentage=75.0 \
-               -XX:+UseContainerSupport \
+# JVM tuning — optimized for memory-constrained environments (<512MB RAM)
+ENV JAVA_OPTS="-XX:+UseSerialGC \
+               -Xmx256m \
+               -XX:MaxMetaspaceSize=100m \
+               -XX:ReservedCodeCacheSize=64m \
+               -Xss256k \
+               -Dspring.main.lazy-initialization=true \
                -Djava.security.egd=file:/dev/./urandom"
 
 EXPOSE 8080
