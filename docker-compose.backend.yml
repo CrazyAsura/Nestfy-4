@@ -13,6 +13,7 @@ services:
   # Spring Boot Backend — Multi-stage JDK 21 build
   # ─────────────────────────────────────────────────────────────
   backend:
+    image: ghcr.io/crazyasura/nestfy-4-backend:latest
     build:
       context: ./backend
       dockerfile: Dockerfile

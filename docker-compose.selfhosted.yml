@@ -1,0 +1,254 @@
+# ╔══════════════════════════════════════════════════════════════════════════════════╗
+# ║                  NESTFY — Unified Self-Hosted Stack                              ║
+# ║                                                                                ║
+# ║  Combines Infrastructure, Backend, Frontend, and Tunnel layers in one file.     ║
+# ║  Uses pre-built GHCR registry images to avoid compiling on low-spec servers.   ║
+# ║  Runs autonomously on your VPS or home server 24/7.                            ║
+# ╚══════════════════════════════════════════════════════════════════════════════════╝
+
+services:
+
+  # ─────────────────────────────────────────────────────────────
+  # PostgreSQL 17 — Relational Database
+  # ─────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:17-alpine
+    container_name: nestfy-postgres
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - nestfy_postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - Nestfy-network
+
+  # ─────────────────────────────────────────────────────────────
+  # MongoDB 8 — Document Store
+  # ─────────────────────────────────────────────────────────────
+  mongodb:
+    image: mongo:8
+    container_name: nestfy-mongodb
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    volumes:
+      - nestfy_mongo_data:/data/db
+      - nestfy_mongo_config:/data/configdb
+      - ./infra/mongo/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - Nestfy-network
+
+  # ─────────────────────────────────────────────────────────────
+  # Redis 7 — Cache & Session Tier
+  # ─────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: nestfy-redis
+    restart: unless-stopped
+    env_file: .env
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+      --appendfsync everysec
+      --save 60 1000
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - nestfy_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - Nestfy-network
+
+  # ─────────────────────────────────────────────────────────────
+  # Apache Kafka 4.0 — Message Broker (KRaft Mode)
+  # ─────────────────────────────────────────────────────────────
+  kafka:
+    image: apache/kafka:4.0.0
+    container_name: nestfy-kafka
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:${KAFKA_CONTROLLER_PORT:-9093}
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CLUSTER_ID: ${KAFKA_CLUSTER_ID}
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_LOG_RETENTION_HOURS: 168
+    ports:
+      - "${KAFKA_BROKER_PORT:-9092}:9092"
+    volumes:
+      - nestfy_kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+    networks:
+      - Nestfy-network
+
+  # ─────────────────────────────────────────────────────────────
+  # Spring Boot Backend — JDK 21 Application Core
+  # ─────────────────────────────────────────────────────────────
+  backend:
+    image: ghcr.io/crazyasura/nestfy-4-backend:latest
+    container_name: nestfy-backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
+      JAVA_OPTS: ${JAVA_OPTS:--XX:+UseSerialGC -Xmx256m -XX:MaxMetaspaceSize=100m -XX:ReservedCodeCacheSize=64m -Xss256k -Dspring.main.lazy-initialization=true}
+      SPRING_SECURITY_USER_NAME: ${SPRING_SECURITY_USER_NAME}
+      SPRING_SECURITY_USER_PASSWORD: ${SPRING_SECURITY_USER_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_MONGODB_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/${MONGO_INITDB_DATABASE}?authSource=admin
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_KAFKA_CONSUMER_GROUP_ID: nestfy-consumer-group
+      SPRING_KAFKA_CONSUMER_AUTO_OFFSET_RESET: earliest
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    networks:
+      - Nestfy-network
+
+  # ─────────────────────────────────────────────────────────────
+  # Next.js Frontend — User Interface
+  # ─────────────────────────────────────────────────────────────
+  frontend:
+    image: ghcr.io/crazyasura/nestfy-4-frontend:latest
+    container_name: nestfy-frontend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://backend:8080}
+      HOSTNAME: 0.0.0.0
+      PORT: 3000
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3000 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - Nestfy-network
+
+  # ─────────────────────────────────────────────────────────────
+  # Nginx Gateway — Single entrypoint proxy (ports 80/443 mapping)
+  # ─────────────────────────────────────────────────────────────
+  nginx:
+    image: nginx:stable-alpine
+    container_name: nestfy-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    networks:
+      - Nestfy-network
+
+  # ─────────────────────────────────────────────────────────────
+  # Ngrok Tunnel — Exposes the unified Nginx gateway to the internet
+  # ─────────────────────────────────────────────────────────────
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: nestfy-tunnel-ngrok
+    restart: unless-stopped
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    command: http nginx:80
+    ports:
+      - "4040:4040" # Ngrok dashboard
+    depends_on:
+      - nginx
+    networks:
+      - Nestfy-network
+
+# ─────────────────────────────────────────────────────────────
+# Volumes — Persistent Database Storage
+# ─────────────────────────────────────────────────────────────
+volumes:
+  nestfy_postgres_data:
+  nestfy_mongo_data:
+  nestfy_mongo_config:
+  nestfy_redis_data:
+  nestfy_kafka_data:
+
+# ─────────────────────────────────────────────────────────────
+# Network — Isolated Bridge Network
+# ─────────────────────────────────────────────────────────────
+networks:
+  Nestfy-network:
+    name: Nestfy-network

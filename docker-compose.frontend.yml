@@ -13,6 +13,7 @@ services:
   # Next.js Frontend — Multi-stage Node 22 build
   # ─────────────────────────────────────────────────────────────
   frontend:
+    image: ghcr.io/crazyasura/nestfy-4-frontend:latest
     build:
       context: ./frontend
       dockerfile: Dockerfile

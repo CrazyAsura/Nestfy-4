@@ -21,7 +21,7 @@ else
     RM_NETWORK = docker network rm Nestfy-network 2>/dev/null || true
 endif
 
-.PHONY: network infra backend frontend up down clean logs-infra logs-backend logs-frontend status rebuild tunnel ci-cd-local
+.PHONY: network infra backend frontend up down clean logs-infra logs-backend logs-frontend status rebuild tunnel ci-cd-local selfhosted
 
 # ─── Network ──────────────────────────────────────────────────
 network:
@@ -133,3 +133,11 @@ else
 	chmod +x ./bin/ci-cd-local.sh
 	./bin/ci-cd-local.sh
 endif
+
+# ─── Self-Hosted Production-Like Stack ────────────────────────
+selfhosted:
+	@echo "╔══════════════════════════════════════════╗"
+	@echo "║  Starting Self-Hosted Unified Stack...   ║"
+	@echo "║  Using GHCR Pre-built Registry Images    ║"
+	@echo "╚══════════════════════════════════════════╝"
+	docker compose -f docker-compose.selfhosted.yml up -d
