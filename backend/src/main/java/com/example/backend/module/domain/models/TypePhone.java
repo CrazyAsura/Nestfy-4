@@ -1,11 +1,13 @@
 package com.example.backend.module.domain.models;
 
+import com.example.backend.module.domain.models.interfaces.*;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class TypePhone implements ITypePhone {
+public class TypePhone extends ITypePhone{
     private Long id;
     private TypePhoneEnum type;
     private User user;

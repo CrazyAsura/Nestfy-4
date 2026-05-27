@@ -1,11 +1,13 @@
 package com.example.backend.module.domain.models;
 
+import com.example.backend.module.domain.models.interfaces.*;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class OrderItem implements IOrderItem {
+public class OrderItem extends IOrderItem{
     
     private Long id;
     private Order order;

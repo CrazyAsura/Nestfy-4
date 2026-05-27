@@ -1,11 +1,13 @@
 package com.example.backend.module.domain.models;
 
+import com.example.backend.module.domain.models.interfaces.*;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class Client implements IClient {
+public class Client extends IClient{
 
     private Long id;
     private User user;

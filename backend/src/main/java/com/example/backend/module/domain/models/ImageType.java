@@ -2,12 +2,14 @@ package com.example.backend.module.domain.models;
 
 import java.util.List;
 
+import com.example.backend.module.domain.models.interfaces.*;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class ImageType implements IImageType {
+public class ImageType extends IImageType {
 
     private Long id;
     private ImageTypeEnum type;

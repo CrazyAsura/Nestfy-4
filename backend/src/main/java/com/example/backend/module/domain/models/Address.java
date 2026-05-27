@@ -1,11 +1,13 @@
 package com.example.backend.module.domain.models;
 
+import com.example.backend.module.domain.models.interfaces.*;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class Address implements IAddress {
+public class Address extends IAddress{
 
     private Long id;
     private String street;

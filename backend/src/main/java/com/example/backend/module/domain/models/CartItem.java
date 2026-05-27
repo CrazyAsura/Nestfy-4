@@ -1,11 +1,13 @@
 package com.example.backend.module.domain.models;
 
+import com.example.backend.module.domain.models.interfaces.*;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class CartItem implements ICartItem {
+public class CartItem extends ICartItem{
 
     private Long id;
     private Cart cart;

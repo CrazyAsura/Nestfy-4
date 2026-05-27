@@ -5,9 +5,11 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.Date;
 
+import com.example.backend.module.domain.models.interfaces.*;
+
 @Getter
 @Setter
-public class User implements IUser{
+public class User extends IUser{
 
     private Long id;
     private String name;
