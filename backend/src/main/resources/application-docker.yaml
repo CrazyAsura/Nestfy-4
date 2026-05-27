@@ -1,0 +1,120 @@
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  Spring Boot — Docker Profile                                  ║
+# ║  Activated when SPRING_PROFILES_ACTIVE=docker                  ║
+# ║  All values are overridable via environment variables.          ║
+# ╚══════════════════════════════════════════════════════════════════╝
+
+spring:
+  application:
+    name: nestfy-backend
+
+  security:
+    user:
+      name: ${SPRING_SECURITY_USER_NAME:super-admin@nestfy.com}
+      password: ${SPRING_SECURITY_USER_PASSWORD:nestfy@3355}
+
+  docker:
+    compose:
+      enabled: false
+
+  # ─── PostgreSQL (JPA) ───────────────────────────────────────
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/nestfy_db}
+    username: ${SPRING_DATASOURCE_USERNAME:nestfy_admin}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 30000
+      connection-timeout: 20000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+    open-in-view: false
+
+  # ─── MongoDB ────────────────────────────────────────────────
+  mongodb:
+    uri: ${SPRING_MONGODB_URI:mongodb://nestfy_mongo_admin:m0ng0_s3cur3_pass_2026@mongodb:27017/nestfy_nosql?authSource=admin}
+
+  # ─── Redis ──────────────────────────────────────────────────
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:redis}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      password: ${SPRING_DATA_REDIS_PASSWORD:}
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 4
+          max-wait: 2000ms
+
+  # ─── Kafka ──────────────────────────────────────────────────
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+    consumer:
+      group-id: ${SPRING_KAFKA_CONSUMER_GROUP_ID:nestfy-consumer-group}
+      auto-offset-reset: ${SPRING_KAFKA_CONSUMER_AUTO_OFFSET_RESET:earliest}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      retries: 3
+
+  # ─── Session (Redis-backed) ────────────────────────────────
+  session:
+    store-type: redis
+    redis:
+      namespace: nestfy:session
+    timeout: 3600s
+
+# ─── Actuator (Health Checks) ────────────────────────────────
+management:
+  otlp:
+    metrics:
+      export:
+        enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  health:
+    redis:
+      enabled: true
+    mongo:
+      enabled: true
+    db:
+      enabled: true
+
+# ─── Server ──────────────────────────────────────────────────
+server:
+  port: 8080
+  shutdown: graceful
+
+# ─── Logging ─────────────────────────────────────────────────
+logging:
+  level:
+    root: INFO
+    com.example.backend: DEBUG
+    org.springframework.data.mongodb: WARN
+    org.springframework.kafka: INFO
+    org.hibernate.SQL: DEBUG

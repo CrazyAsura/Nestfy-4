@@ -1,0 +1,85 @@
+# ╔══════════════════════════════════════════════════════════════════════════════════╗
+# ║                         NESTFY — Backend Layer                                 ║
+# ║                                                                                ║
+# ║  Spring Boot 4.1 (Java 21) — Multi-stage Docker build                         ║
+# ║  Depends on: PostgreSQL, MongoDB, Redis, Kafka (infra layer)                   ║
+# ║                                                                                ║
+# ║  Network: Nestfy-network (external bridge)                                     ║
+# ╚══════════════════════════════════════════════════════════════════════════════════╝
+
+services:
+
+  # ─────────────────────────────────────────────────────────────
+  # Spring Boot Backend — Multi-stage JDK 21 build
+  # ─────────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        JAVA_VERSION: 21
+    container_name: nestfy-backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # ── Spring Core ──
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
+      JAVA_OPTS: ${JAVA_OPTS:--Xms512m -Xmx1024m -XX:+UseZGC}
+      SPRING_SECURITY_USER_NAME: ${SPRING_SECURITY_USER_NAME}
+      SPRING_SECURITY_USER_PASSWORD: ${SPRING_SECURITY_USER_PASSWORD}
+
+      # ── PostgreSQL (JPA) ──
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+
+      # ── MongoDB ──
+      SPRING_MONGODB_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/${MONGO_INITDB_DATABASE}?authSource=admin
+
+      # ── Redis ──
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD}
+
+      # ── Kafka ──
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_KAFKA_CONSUMER_GROUP_ID: nestfy-consumer-group
+      SPRING_KAFKA_CONSUMER_AUTO_OFFSET_RESET: earliest
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: true
+      mongodb:
+        condition: service_healthy
+        required: true
+      redis:
+        condition: service_healthy
+        required: true
+      kafka:
+        condition: service_healthy
+        required: true
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    networks:
+      - Nestfy-network
+    deploy:
+      resources:
+        limits:
+          memory: 1.5G
+          cpus: "2.0"
+
+# ─────────────────────────────────────────────────────────────
+# Network — External bridge (created by infra layer)
+# ─────────────────────────────────────────────────────────────
+networks:
+  Nestfy-network:
+    external: true
+    name: Nestfy-network

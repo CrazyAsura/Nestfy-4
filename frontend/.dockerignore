@@ -1,0 +1,32 @@
+# ── Dependencies (reinstalled in Docker) ──
+node_modules/
+.pnp/
+.pnp.js
+
+# ── Build output ──
+.next/
+out/
+
+# ── IDE ──
+.idea/
+*.iml
+.vscode/
+
+# ── Git ──
+.git/
+.gitignore
+
+# ── OS ──
+.DS_Store
+Thumbs.db
+
+# ── Docker ──
+Dockerfile
+docker-compose*.yml
+
+# ── Logs ──
+*.log
+npm-debug.log*
+
+# ── Testing ──
+coverage/

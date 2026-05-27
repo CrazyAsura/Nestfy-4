@@ -1,0 +1,27 @@
+# ── Build artifacts ──
+target/
+!target/*.jar
+
+# ── IDE ──
+.idea/
+*.iml
+.vscode/
+
+# ── Git ──
+.git/
+.gitignore
+
+# ── OS ──
+.DS_Store
+Thumbs.db
+
+# ── Docker (avoid recursive copy) ──
+Dockerfile
+docker-compose*.yml
+
+# ── Maven wrapper (we copy selectively) ──
+# .mvn is INCLUDED intentionally
+
+# ── Logs ──
+*.log
+logs/

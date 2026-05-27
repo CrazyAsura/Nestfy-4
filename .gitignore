@@ -3,3 +3,6 @@ backend.zip
 .idea/
 .vscode/
 *.log
+**/node_modules
+# Docker
+.env
