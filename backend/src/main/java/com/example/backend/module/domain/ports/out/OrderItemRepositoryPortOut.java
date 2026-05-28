@@ -7,7 +7,9 @@ import com.example.backend.module.domain.models.OrderItem;
 public interface OrderItemRepositoryPortOut extends IRepositoryPortOut<OrderItem, Long> {
 
     public List<OrderItem> findByOrderId(Long orderId);
+
     public List<OrderItem> findByProductId(Long productId);
+
     public List<OrderItem> findByActive(Boolean active);
 
 }
