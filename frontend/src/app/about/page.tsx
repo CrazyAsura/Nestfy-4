@@ -4,11 +4,13 @@ import React from 'react';
 import { Header } from '@/components/web/Header';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { CyberButton } from '@/components/ui/CyberButton';
-import { motion } from 'framer-motion';
 import { Cpu, ShieldCheck, Zap, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/languageContext';
 
 export default function AboutPage() {
+  const { t } = useLanguage();
+
   return (
     <div className="relative min-h-screen bg-background text-foreground transition-colors duration-300 overflow-hidden cyber-grid">
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[radial-gradient(ellipse_at_center,rgba(0,240,255,0.05),transparent_70%)] pointer-events-none" />
@@ -21,19 +23,19 @@ export default function AboutPage() {
         {/* Back Link */}
         <Link href="/" className="inline-flex items-center gap-2 text-xs uppercase font-mono tracking-widest text-zinc-500 hover:text-neon-blue transition-colors mb-8">
           <ArrowLeft size={12} />
-          Back to Core
+          {t('nav.backToCore')}
         </Link>
 
         {/* Hero Section */}
         <div className="flex flex-col gap-4 mb-12 text-center md:text-left">
           <span className="text-[10px] tracking-widest text-neon-blue uppercase border border-neon-blue/20 bg-neon-blue/5 px-2.5 py-0.5 rounded font-black w-fit self-center md:self-start">
-            SYS_PROFILE_DATA
+            {t('about.profileData')}
           </span>
           <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight">
-            About <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-neon-blue to-white neon-text-glow">Nestfy</span>
+            {t('nav.about')} <span className="text-transparent bg-clip-text bg-linear-to-r from-white via-neon-blue to-white neon-text-glow">Nestfy</span>
           </h1>
           <p className="text-sm text-zinc-400 font-light leading-relaxed max-w-2xl">
-            Nestfy is a premier developer of integrated smart home ecosystems. We conceptualize physical hardware through local processing algorithms, prioritizing data privacy and network speed.
+            {t('about.desc')}
           </p>
         </div>
 
@@ -41,38 +43,38 @@ export default function AboutPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <GlassCard animate={false} className="flex flex-col gap-4 border border-zinc-900 bg-zinc-950/20">
             <Cpu size={24} className="text-neon-blue" />
-            <h3 className="text-sm font-bold uppercase tracking-wider text-white">Local-First Neural IoT</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wider text-white">{t('about.pillar1Title')}</h3>
             <p className="text-xs text-zinc-500 leading-relaxed">
-              We compile commands directly within your local Dome Hub. Voice instructions are parsed offline to ensure zero transmission delays.
+              {t('about.pillar1Desc')}
             </p>
           </GlassCard>
 
           <GlassCard animate={false} className="flex flex-col gap-4 border border-zinc-900 bg-zinc-950/20">
             <ShieldCheck size={24} className="text-neon-blue" />
-            <h3 className="text-sm font-bold uppercase tracking-wider text-white">Privacy by Cryptography</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wider text-white">{t('about.pillar2Title')}</h3>
             <p className="text-xs text-zinc-500 leading-relaxed">
-              Your biometric door data and telemetry logs remain isolated on physical solid-state drives inside your residence, protected by AES-256 blocks.
+              {t('about.pillar2Desc')}
             </p>
           </GlassCard>
 
           <GlassCard animate={false} className="flex flex-col gap-4 border border-zinc-900 bg-zinc-950/20">
             <Zap size={24} className="text-neon-blue" />
-            <h3 className="text-sm font-bold uppercase tracking-wider text-white">Universal Bridge</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wider text-white">{t('about.pillar3Title')}</h3>
             <p className="text-xs text-zinc-500 leading-relaxed">
-              Designed from the ground up to support the Matter and Thread standards, allowing interoperability between other platforms.
+              {t('about.pillar3Desc')}
             </p>
           </GlassCard>
         </div>
 
         {/* Narrative Panel */}
         <GlassCard animate={false} className="border border-zinc-900 mb-12">
-          <h2 className="text-lg font-bold font-mono uppercase tracking-widest text-white mb-4">Architecture Manifest</h2>
-          <div className="flex flex-col gap-4 text-xs text-zinc-400 leading-relaxed font-light">
+          <h2 className="text-lg font-bold font-mono uppercase tracking-widest text-white mb-4">{t('about.manifestTitle')}</h2>
+          <div className="flex flex-col gap-4 text-xs text-zinc-400 leading-relaxed font-light font-mono">
             <p>
-              Smart home automation shouldn't depend on external cloud servers that introduce latencies and create attack surfaces for private data. Nestfy introduces the 3-tier decoupled model: local databases, mesh router nodes, and custom responsive interfaces.
+              {t('about.manifestP1')}
             </p>
             <p>
-              By utilizing local-first design, Nestfy systems continue to operate seamlessly even during external network outages. Devices communicate through low-latency Thread networks, managed directly by the Nestfy Dome Hub.
+              {t('about.manifestP2')}
             </p>
           </div>
         </GlassCard>
@@ -80,7 +82,7 @@ export default function AboutPage() {
         {/* Action Link */}
         <div className="text-center">
           <Link href="/">
-            <CyberButton variant="primary">Access Catalog</CyberButton>
+            <CyberButton variant="primary">{t('about.accessCatalog')}</CyberButton>
           </Link>
         </div>
 
@@ -88,7 +90,7 @@ export default function AboutPage() {
 
       {/* Footer */}
       <footer className="border-t border-zinc-950 py-8 text-center text-[10px] tracking-widest text-zinc-700 uppercase font-mono mt-12">
-        NESTFY SYSTEMS © 2026. UPLINK_PROFILE_OK.
+        {t('about.uplinkOk')}
       </footer>
     </div>
   );

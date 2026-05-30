@@ -3,13 +3,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearch } from '@/lib/searchContext';
 import { useAppSelector } from '@/lib/store/hooks';
+import { Product } from '@/lib/store/productSlice';
 import { Search, X, Cpu, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/languageContext';
 
 export const SearchOverlay: React.FC = () => {
   const { isOpen, closeSearch } = useSearch();
   const products = useAppSelector((state) => state.products.items);
+  const { t } = useLanguage();
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -30,9 +33,25 @@ export const SearchOverlay: React.FC = () => {
     };
   }, [isOpen]);
 
+  // Localize product details for searching in translated properties
+  const getLocalizedProduct = (prod: Product) => {
+    const id = prod.id;
+    const name = t(`products.${id}.name`);
+    const tagline = t(`products.${id}.tagline`);
+    const description = t(`products.${id}.description`);
+    return {
+      ...prod,
+      name: name !== `products.${id}.name` ? name : prod.name,
+      tagline: tagline !== `products.${id}.tagline` ? tagline : prod.tagline,
+      description: description !== `products.${id}.description` ? description : prod.description,
+    } as Product;
+  };
+
+  const localizedProducts = products.map(getLocalizedProduct);
+
   const filteredProducts = query.trim() === '' 
     ? [] 
-    : products.filter(product => 
+    : localizedProducts.filter(product => 
         product.name.toLowerCase().includes(query.toLowerCase()) ||
         product.category.toLowerCase().includes(query.toLowerCase()) ||
         product.tagline.toLowerCase().includes(query.toLowerCase()) ||
@@ -71,7 +90,7 @@ export const SearchOverlay: React.FC = () => {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search quantum core, dome hubs, security system..."
+                placeholder={t('search.placeholder')}
                 className="w-full bg-zinc-950/20 dark:bg-black/40 border border-zinc-300/30 dark:border-neon-blue/30 focus:border-neon-blue focus:dark:shadow-[0_0_15px_rgba(0,240,255,0.25)] rounded-lg pl-12 pr-12 py-4 text-base md:text-lg outline-none text-foreground font-mono placeholder-zinc-500 transition-all duration-200"
               />
               <button 
@@ -87,17 +106,17 @@ export const SearchOverlay: React.FC = () => {
               {query.trim() === '' ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center gap-2">
                   <Cpu className="w-8 h-8 text-zinc-500 dark:text-neon-blue/40 animate-pulse" />
-                  <p className="text-xs uppercase tracking-widest text-zinc-500 font-mono">Type to initialize search scan</p>
-                  <p className="text-[10px] text-zinc-600 dark:text-zinc-500 font-mono">Press [ESC] to exit or [Ctrl+K] anytime</p>
+                  <p className="text-xs uppercase tracking-widest text-zinc-500 font-mono">{t('search.typeToSearch')}</p>
+                  <p className="text-[10px] text-zinc-600 dark:text-zinc-500 font-mono">{t('search.pressEsc')}</p>
                 </div>
               ) : filteredProducts.length === 0 ? (
                 <div className="text-center py-10">
-                  <p className="text-sm text-zinc-400 font-mono">No network uplink matches found for &quot;{query}&quot;</p>
+                  <p className="text-sm text-zinc-400 font-mono">{t('search.noMatches')} &quot;{query}&quot;</p>
                 </div>
               ) : (
                 <div className="flex flex-col gap-2">
                   <p className="text-[10px] uppercase tracking-widest text-zinc-500 font-mono mb-2 px-2">
-                    Search Uplink Results ({filteredProducts.length})
+                    {t('search.resultsHeader')} ({filteredProducts.length})
                   </p>
                   {filteredProducts.map((product) => (
                     <Link

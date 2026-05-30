@@ -58,21 +58,23 @@ class SingletonAndFactoryTest {
 
     @Test
     void testUserFactory() {
-        User user = UserFactory.createNewActiveUser("John Doe", "john@example.com", "pass", "123", "456", null, null, null);
+        UserFactory userFactory = new UserFactory();
+        User user = userFactory.createNewActiveUser("John Doe", "john@example.com", "pass", "123", "456", null, null, null);
         assertNotNull(user);
         assertEquals("John Doe", user.getName());
         assertEquals("john@example.com", user.getEmail());
         assertTrue(user.getActive());
         assertNotNull(user.getCreatedAt());
 
-        User empty = UserFactory.createEmptyUser();
+        User empty = userFactory.createEmptyUser();
         assertNotNull(empty);
         assertNull(empty.getName());
     }
 
     @Test
     void testProductFactory() {
-        Product p = ProductFactory.createProductWithDiscountCalculation(1L, "Laptop", "Work laptop", "img.png", 1000.0, 10.0, null);
+        ProductFactory productFactory = new ProductFactory();
+        Product p = productFactory.createProductWithDiscountCalculation(1L, "Laptop", "Work laptop", "img.png", 1000.0, 10.0, null);
         assertNotNull(p);
         assertEquals(1000.0, p.getUnitPrice());
         assertEquals(10.0, p.getDiscountPercentage());
@@ -82,14 +84,16 @@ class SingletonAndFactoryTest {
 
     @Test
     void testOrderFactory() {
-        Product p1 = ProductFactory.createProductWithDiscountCalculation(1L, "Laptop", "Work laptop", "img.png", 1000.0, 10.0, null);
-        Product p2 = ProductFactory.createProductWithDiscountCalculation(2L, "Mouse", "Gaming mouse", "mouse.png", 100.0, 0.0, null);
+        ProductFactory productFactory = new ProductFactory();
+        Product p1 = productFactory.createProductWithDiscountCalculation(1L, "Laptop", "Work laptop", "img.png", 1000.0, 10.0, null);
+        Product p2 = productFactory.createProductWithDiscountCalculation(2L, "Mouse", "Gaming mouse", "mouse.png", 100.0, 0.0, null);
 
         List<Product> products = new ArrayList<>();
         products.add(p1);
         products.add(p2);
 
-        Order order = OrderFactory.createOrderFromProducts(1L, null, products, null);
+        OrderFactory orderFactory = new OrderFactory();
+        Order order = orderFactory.createOrderFromProducts(1L, null, products, null);
         assertNotNull(order);
         assertEquals(1100.0, order.getPriceWithOutDiscount());
         assertEquals(100.0, order.getDiscountAmount());

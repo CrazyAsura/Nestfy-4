@@ -6,6 +6,8 @@ import { GlassCard } from '@/components/ui/GlassCard';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Minus, ArrowLeft, Terminal } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/languageContext';
+import { translations } from '@/lib/i18n/translations';
 
 interface FAQItem {
   question: string;
@@ -37,10 +39,14 @@ const faqData: FAQItem[] = [
 
 export default function FAQPage() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const { t, language } = useLanguage();
 
   const toggleFAQ = (idx: number) => {
     setOpenIndex(openIndex === idx ? null : idx);
   };
+
+  const langDict: any = translations[language];
+  const items = langDict?.faq?.items || faqData;
 
   return (
     <div className="relative min-h-screen bg-background text-foreground transition-colors duration-300 overflow-hidden cyber-grid">
@@ -54,25 +60,25 @@ export default function FAQPage() {
         {/* Back Link */}
         <Link href="/" className="inline-flex items-center gap-2 text-xs uppercase font-mono tracking-widest text-zinc-500 hover:text-neon-blue transition-colors mb-8">
           <ArrowLeft size={12} />
-          Back to Core
+          {t('nav.backToCore')}
         </Link>
 
         {/* Title */}
         <div className="flex flex-col gap-4 mb-12 text-center md:text-left">
           <span className="text-[10px] tracking-widest text-neon-blue uppercase border border-neon-blue/20 bg-neon-blue/5 px-2.5 py-0.5 rounded font-black w-fit self-center md:self-start">
-            SYS_KNOWLEDGE_DECK
+            {t('faq.knowledgeDeck')}
           </span>
           <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight">
-            Frequently Asked <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-neon-blue to-white neon-text-glow">Questions</span>
+            {t('faq.title')}
           </h1>
           <p className="text-sm text-zinc-400 font-light leading-relaxed max-w-xl">
-            Review detailed hardware specifications and system core capabilities.
+            {t('faq.desc')}
           </p>
         </div>
 
         {/* Accordions */}
         <div className="flex flex-col gap-4">
-          {faqData.map((item, idx) => {
+          {items.map((item: FAQItem, idx: number) => {
             const isOpen = openIndex === idx;
             return (
               <GlassCard 
@@ -121,7 +127,7 @@ export default function FAQPage() {
 
       {/* Footer */}
       <footer className="border-t border-zinc-950 py-8 text-center text-[10px] tracking-widest text-zinc-700 uppercase font-mono mt-16">
-        NESTFY SYSTEMS © 2026. UPLINK_KNOWLEDGE_OK.
+        {t('faq.uplinkOk')}
       </footer>
     </div>
   );

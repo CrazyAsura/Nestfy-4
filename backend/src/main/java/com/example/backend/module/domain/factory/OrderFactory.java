@@ -4,21 +4,27 @@ import com.example.backend.module.domain.models.Order;
 import com.example.backend.module.domain.models.Client;
 import com.example.backend.module.domain.models.Product;
 import com.example.backend.module.domain.models.Cart;
+import com.example.backend.module.domain.factory.interfaces.IOrderFactory;
+import org.springframework.stereotype.Component;
 import java.util.List;
 
-public class OrderFactory {
+@Component
+public class OrderFactory implements IOrderFactory {
 
-    public static Order createOrder(Long id, Client client, List<Product> product, Integer quantity, Double priceWithOutDiscount, Double discountPercentage, Double discountAmount, Double total) {
+    @Override
+    public Order createOrder(Long id, Client client, List<Product> product, Integer quantity, Double priceWithOutDiscount, Double discountPercentage, Double discountAmount, Double total) {
         return new Order(id, client, product, quantity, priceWithOutDiscount, discountPercentage, discountAmount, total);
     }
 
-    public static Order createOrderWithCart(Long id, Client client, List<Product> product, Integer quantity, Double priceWithOutDiscount, Double discountPercentage, Double discountAmount, Double total, Cart cart) {
+    @Override
+    public Order createOrderWithCart(Long id, Client client, List<Product> product, Integer quantity, Double priceWithOutDiscount, Double discountPercentage, Double discountAmount, Double total, Cart cart) {
         Order order = new Order(id, client, product, quantity, priceWithOutDiscount, discountPercentage, discountAmount, total);
         order.setCart(cart);
         return order;
     }
 
-    public static Order createOrderFromProducts(Long id, Client client, List<Product> products, Cart cart) {
+    @Override
+    public Order createOrderFromProducts(Long id, Client client, List<Product> products, Cart cart) {
         double subtotal = 0.0;
         double discountAmt = 0.0;
 
@@ -37,7 +43,8 @@ public class OrderFactory {
         return order;
     }
 
-    public static Order createEmptyOrder() {
+    @Override
+    public Order createEmptyOrder() {
         return new Order();
     }
 }

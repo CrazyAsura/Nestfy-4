@@ -37,20 +37,48 @@ import SearchIcon from '@mui/icons-material/Search';
 
 import { useAppSelector, useAppDispatch } from '@/lib/store/hooks';
 import { addToCart, removeFromCart, updateQuantity, clearCart } from '@/lib/store/cartSlice';
+import { Product } from '@/lib/store/productSlice';
 import { getMobileTheme } from './theme';
 import { useTheme } from '@/lib/themeContext';
 import { useSearch } from '@/lib/searchContext';
 import { MobileDock } from './MobileDock';
+import { SmartHubPromotions } from '../web/SmartHubPromotions';
+import { LanguageSwitcher } from '../web/LanguageSwitcher';
+import { useLanguage } from '@/lib/languageContext';
+import { translations } from '@/lib/i18n/translations';
 import { motion } from 'framer-motion';
 
 
 export const MobileApp: React.FC = () => {
   const { openSearch } = useSearch();
   const { theme } = useTheme();
+  const { t, formatPrice, language } = useLanguage();
   const dynamicTheme = React.useMemo(() => getMobileTheme(theme), [theme]);
   const products = useAppSelector((state) => state.products.items);
   const { items: cartItems, totalAmount, totalQuantity } = useAppSelector((state) => state.cart);
   const dispatch = useAppDispatch();
+
+  const getLocalizedProduct = (prod: Product) => {
+    const id = prod.id;
+    const name = t(`products.${id}.name`);
+    const tagline = t(`products.${id}.tagline`);
+    const description = t(`products.${id}.description`);
+
+    // Localized features array check
+    let features = prod.features;
+    const langDict: any = translations[language];
+    if (langDict && langDict.products && langDict.products[id] && Array.isArray(langDict.products[id].features)) {
+      features = langDict.products[id].features;
+    }
+
+    return {
+      ...prod,
+      name: name !== `products.${id}.name` ? name : prod.name,
+      tagline: tagline !== `products.${id}.tagline` ? tagline : prod.tagline,
+      description: description !== `products.${id}.description` ? description : prod.description,
+      features,
+    } as Product;
+  };
 
   const [activeTab, setActiveTab] = useState<number>(0);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -122,7 +150,9 @@ export const MobileApp: React.FC = () => {
               </Typography>
             </Box>
             
-            <Box sx={{ display: 'flex', gap: 0.5 }}>
+            <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+              <LanguageSwitcher />
+
               <IconButton onClick={openSearch} color="inherit">
                 <SearchIcon />
               </IconButton>
@@ -148,35 +178,17 @@ export const MobileApp: React.FC = () => {
             {/* VIEW 0: HOME / CATALOG */}
             {activeTab === 0 && (
               <Box>
-                {/* Hero Banner */}
-                <Card sx={{ mb: 3, background: 'linear-gradient(135deg, #09090b 30%, rgba(0,240,255,0.08) 100%)', border: '1px solid rgba(0, 240, 255, 0.25)' }}>
-                  <CardContent sx={{ py: 3 }}>
-                    <Typography variant="overline" color="primary" sx={{ fontWeight: 'bold', tracking: '0.2em' }}>
-                      NEW UPLINK AVAILABLE
-                    </Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 'black', my: 1 }}>
-                      QUANTUM BOOK X1
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                      Deploy pure computing power locally with 128 physical qubits in a briefcase design.
-                    </Typography>
-                    <Button 
-                      variant="contained" 
-                      color="primary"
-                      size="small"
-                      onClick={() => handleAddToCart(products[0])}
-                    >
-                      Sync Now
-                    </Button>
-                  </CardContent>
-                </Card>
+                {/* Hero Promotions Carousel Banner */}
+                <Box sx={{ mb: 3 }}>
+                  <SmartHubPromotions />
+                </Box>
 
                 {/* Categories Carousel (Scrollable chips) */}
                 <Stack direction="row" spacing={1} sx={{ overflowX: 'auto', mb: 3, pb: 1, '&::-webkit-scrollbar': { display: 'none' } }}>
                   {categories.map((cat) => (
                     <Chip
                       key={cat}
-                      label={cat}
+                      label={cat === 'All' ? t('products.categoryAll') : cat}
                       onClick={() => setSelectedCategory(cat)}
                       variant={selectedCategory === cat ? 'filled' : 'outlined'}
                       color={selectedCategory === cat ? 'primary' : 'default'}
@@ -193,55 +205,58 @@ export const MobileApp: React.FC = () => {
 
                 {/* Product List */}
                 <Stack spacing={2.5}>
-                  {filteredProducts.map((prod) => (
-                    <Card key={prod.id}>
-                      <CardContent>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                          <Typography variant="caption" sx={{ color: '#00f0ff', fontWeight: 'bold', letterSpacing: '0.1em' }}>
-                            {prod.category}
+                  {filteredProducts.map((prod) => {
+                    const lProd = getLocalizedProduct(prod);
+                    return (
+                      <Card key={prod.id}>
+                        <CardContent>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <Typography variant="caption" sx={{ color: '#00f0ff', fontWeight: 'bold', letterSpacing: '0.1em' }}>
+                              {lProd.category}
+                            </Typography>
+                            <Typography variant="caption" sx={{ fontFamily: 'monospace', color: 'text.secondary' }}>
+                              ID: {lProd.id.toUpperCase()}
+                            </Typography>
+                          </Box>
+                          
+                          <Typography variant="h6" sx={{ color: '#ffffff', fontWeight: 'bold', mt: 1, mb: 0.5 }}>
+                            {lProd.name}
                           </Typography>
-                          <Typography variant="caption" sx={{ fontFamily: 'monospace', color: 'text.secondary' }}>
-                            ID: {prod.id.toUpperCase()}
+                          
+                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.85rem', mb: 2 }}>
+                            {lProd.description}
                           </Typography>
-                        </Box>
-                        
-                        <Typography variant="h6" sx={{ color: '#ffffff', fontWeight: 'bold', mt: 1, mb: 0.5 }}>
-                          {prod.name}
-                        </Typography>
-                        
-                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.85rem', mb: 2 }}>
-                          {prod.description}
-                        </Typography>
-                        
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 2 }}>
-                          {prod.features.slice(0, 2).map((feat, fidx) => (
-                            <Chip 
-                              key={fidx} 
-                              label={feat} 
-                              size="small" 
-                              sx={{ fontSize: '0.65rem', bgcolor: 'rgba(255,255,255,0.04)', color: 'text.secondary' }} 
-                            />
-                          ))}
-                        </Box>
-                        
-                        <Divider sx={{ my: 1.5 }} />
-                        
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <Typography variant="h6" sx={{ fontFamily: 'monospace', fontWeight: 'bold', fontSize: '1.1rem' }}>
-                            ${prod.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                          </Typography>
-                          <Button 
-                            variant="outlined" 
-                            color="primary"
-                            size="small"
-                            onClick={() => handleAddToCart(prod)}
-                          >
-                            Add To Cart
-                          </Button>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  ))}
+                          
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 2 }}>
+                            {lProd.features.slice(0, 2).map((feat, fidx) => (
+                              <Chip 
+                                key={fidx} 
+                                label={feat} 
+                                size="small" 
+                                sx={{ fontSize: '0.65rem', bgcolor: 'rgba(255,255,255,0.04)', color: 'text.secondary' }} 
+                              />
+                            ))}
+                          </Box>
+                          
+                          <Divider sx={{ my: 1.5 }} />
+                          
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Typography variant="h6" sx={{ fontFamily: 'monospace', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                              {formatPrice(lProd.price)}
+                            </Typography>
+                            <Button 
+                              variant="outlined" 
+                              color="primary"
+                              size="small"
+                              onClick={() => handleAddToCart(prod)}
+                            >
+                              {t('products.addToCart')}
+                            </Button>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                 </Stack>
               </Box>
             )}
@@ -252,14 +267,14 @@ export const MobileApp: React.FC = () => {
                 {checkoutStep === 'cart' && (
                   <Box>
                     <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
-                      Selected Deck ({cartItems.length})
+                      {t('products.selectedDeck')} ({cartItems.length})
                     </Typography>
                     
                     {cartItems.length === 0 ? (
                       <Box sx={{ textCenter: 'center', py: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                         <TerminalIcon sx={{ fontSize: 40, color: 'rgba(255,255,255,0.1)', mb: 2 }} />
                         <Typography variant="body2" color="text.secondary">
-                          Your tactical cart is empty.
+                          {t('products.tacticalEmpty')}
                         </Typography>
                         <Button 
                           variant="outlined" 
@@ -267,7 +282,7 @@ export const MobileApp: React.FC = () => {
                           sx={{ mt: 3 }}
                           onClick={() => setActiveTab(0)}
                         >
-                          Explore Gear
+                          {t('products.exploreGear')}
                         </Button>
                       </Box>
                     ) : (
@@ -277,7 +292,7 @@ export const MobileApp: React.FC = () => {
                             <CardContent sx={{ p: '16px !important' }}>
                               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <Typography variant="subtitle2" sx={{ fontWeight: 'bold', textTransform: 'uppercase' }}>
-                                  {item.product.name}
+                                  {getLocalizedProduct(item.product).name}
                                 </Typography>
                                 <IconButton 
                                   size="small" 
@@ -313,7 +328,7 @@ export const MobileApp: React.FC = () => {
                                 </Box>
                                 
                                 <Typography variant="subtitle1" sx={{ fontFamily: 'monospace', fontWeight: 'bold' }}>
-                                  ${(item.product.price * item.quantity).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                  {formatPrice(item.product.price * item.quantity)}
                                 </Typography>
                               </Box>
                             </CardContent>
@@ -323,9 +338,9 @@ export const MobileApp: React.FC = () => {
                         <Divider sx={{ my: 1 }} />
                         
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', my: 1 }}>
-                          <Typography variant="body2" color="text.secondary">TOTAL VALUE:</Typography>
+                          <Typography variant="body2" color="text.secondary">{t('products.totalValue')}</Typography>
                           <Typography variant="h5" sx={{ fontFamily: 'monospace', fontWeight: 'black', color: '#00f0ff' }}>
-                            ${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            {formatPrice(totalAmount)}
                           </Typography>
                         </Box>
                         
@@ -336,7 +351,7 @@ export const MobileApp: React.FC = () => {
                           onClick={() => setCheckoutStep('payment')}
                           sx={{ py: 1.5, mt: 2 }}
                         >
-                          Initialize Uplink
+                          {t('products.initUplink')}
                         </Button>
                       </Stack>
                     )}

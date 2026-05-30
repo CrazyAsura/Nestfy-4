@@ -6,6 +6,8 @@ import { ShoppingCart, Cpu, Search, User, HelpCircle, Smartphone } from 'lucide-
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useSearch } from '@/lib/searchContext';
+import { useLanguage } from '@/lib/languageContext';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 interface HeaderProps {
   onToggleCart: () => void;
@@ -16,6 +18,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const { openSearch } = useSearch();
   const { totalQuantity } = useAppSelector((state) => state.cart);
+  const { t } = useLanguage();
 
 
   return (
@@ -40,21 +43,24 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Desktop Nav Links */}
         <nav className="hidden md:flex items-center gap-8 text-sm uppercase tracking-widest text-zinc-500 dark:text-zinc-400 font-medium">
           <Link href="/category/central-hubs" className="hover:text-foreground transition-colors pb-1">
-            Smart Hub
+            {t('nav.smartHub')}
           </Link>
           <Link href="/" className="hover:text-foreground transition-colors pb-1">
-            Category
+            {t('nav.category')}
           </Link>
           <Link href="/about" className="hover:text-foreground transition-colors pb-1">
-            About
+            {t('nav.about')}
           </Link>
           <Link href="/faq" className="hover:text-foreground transition-colors pb-1">
-            FAQ
+            {t('nav.faq')}
           </Link>
         </nav>
 
         {/* Action Buttons */}
         <div className="flex items-center gap-5">
+          {/* Language Switcher */}
+          <LanguageSwitcher />
+
           {/* Search Icon */}
           <button 
             onClick={openSearch}

@@ -6,6 +6,7 @@ import { removeFromCart, updateQuantity, clearCart } from '@/lib/store/cartSlice
 import { X, Trash2, Plus, Minus, CreditCard, QrCode, Terminal, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CyberButton } from '../ui/CyberButton';
+import { useLanguage } from '@/lib/languageContext';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ type PaymentMethod = 'card' | 'pix';
 export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
   const { items, totalAmount } = useAppSelector((state) => state.cart);
   const dispatch = useAppDispatch();
+  const { t, formatPrice } = useLanguage();
   
   const [step, setStep] = useState<CheckoutStep>('cart');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
@@ -52,6 +54,17 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
     }, 100);
   };
 
+  const getLocalizedProduct = (prod: any) => {
+    const id = prod.id;
+    const name = t(`products.${id}.name`);
+    const tagline = t(`products.${id}.tagline`);
+    return {
+      ...prod,
+      name: name !== `products.${id}.name` ? name : prod.name,
+      tagline: tagline !== `products.${id}.tagline` ? tagline : prod.tagline,
+    };
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -78,9 +91,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
               <div className="flex items-center gap-2">
                 <Terminal size={16} className="text-neon-blue neon-text-glow" />
                 <h2 className="text-lg font-bold tracking-widest uppercase text-white font-mono">
-                  {step === 'cart' && 'Operations Deck'}
-                  {step === 'payment' && 'Encryption Port'}
-                  {step === 'success' && 'Uplink Synced'}
+                  {step === 'cart' && t('products.operationsDeck')}
+                  {step === 'payment' && t('products.encryptionPort')}
+                  {step === 'success' && t('products.uplinkSynced')}
                 </h2>
               </div>
               <button 
@@ -106,49 +119,52 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                     {items.length === 0 ? (
                       <div className="flex flex-col items-center justify-center h-64 text-center">
                         <Terminal size={40} className="text-zinc-800 mb-4" />
-                        <p className="text-sm text-zinc-500 uppercase tracking-widest font-mono">No items in tactical inventory.</p>
+                        <p className="text-sm text-zinc-500 uppercase tracking-widest font-mono">{t('products.tacticalInventory')}</p>
                       </div>
                     ) : (
-                      items.map((item) => (
-                        <div 
-                          key={item.product.id}
-                          className="flex gap-4 p-4 rounded border border-zinc-900 bg-zinc-950/50 hover:border-zinc-800 transition-colors"
-                        >
-                          <div className="flex-1 flex flex-col justify-between">
-                            <div>
-                              <h4 className="text-sm font-bold uppercase tracking-wider text-white truncate">{item.product.name}</h4>
-                              <p className="text-[10px] text-zinc-500 font-mono mt-0.5">{item.product.tagline}</p>
+                      items.map((item) => {
+                        const lProd = getLocalizedProduct(item.product);
+                        return (
+                          <div 
+                            key={item.product.id}
+                            className="flex gap-4 p-4 rounded border border-zinc-900 bg-zinc-950/50 hover:border-zinc-800 transition-colors"
+                          >
+                            <div className="flex-1 flex flex-col justify-between">
+                              <div>
+                                <h4 className="text-sm font-bold uppercase tracking-wider text-white truncate">{lProd.name}</h4>
+                                <p className="text-[10px] text-zinc-500 font-mono mt-0.5">{lProd.tagline}</p>
+                              </div>
+                              <div className="flex items-center gap-3 mt-3">
+                                <button 
+                                  onClick={() => handleUpdateQty(item.product.id, item.quantity, -1)}
+                                  className="h-6 w-6 flex items-center justify-center rounded border border-zinc-800 bg-zinc-900 hover:border-neon-blue hover:text-neon-blue transition-colors cursor-pointer"
+                                >
+                                  <Minus size={10} />
+                                </button>
+                                <span className="text-xs font-mono text-white">{item.quantity}</span>
+                                <button 
+                                  onClick={() => handleUpdateQty(item.product.id, item.quantity, 1)}
+                                  className="h-6 w-6 flex items-center justify-center rounded border border-zinc-800 bg-zinc-900 hover:border-neon-blue hover:text-neon-blue transition-colors cursor-pointer"
+                                >
+                                  <Plus size={10} />
+                                </button>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-3 mt-3">
+                            
+                            <div className="flex flex-col items-end justify-between">
                               <button 
-                                onClick={() => handleUpdateQty(item.product.id, item.quantity, -1)}
-                                className="h-6 w-6 flex items-center justify-center rounded border border-zinc-800 bg-zinc-900 hover:border-neon-blue hover:text-neon-blue transition-colors cursor-pointer"
+                                onClick={() => handleRemove(item.product.id)}
+                                className="text-zinc-600 hover:text-red-500 transition-colors cursor-pointer"
                               >
-                                <Minus size={10} />
+                                <Trash2 size={14} />
                               </button>
-                              <span className="text-xs font-mono text-white">{item.quantity}</span>
-                              <button 
-                                onClick={() => handleUpdateQty(item.product.id, item.quantity, 1)}
-                                className="h-6 w-6 flex items-center justify-center rounded border border-zinc-800 bg-zinc-900 hover:border-neon-blue hover:text-neon-blue transition-colors cursor-pointer"
-                              >
-                                <Plus size={10} />
-                              </button>
+                              <span className="text-sm font-mono text-zinc-300">
+                                {formatPrice(item.product.price * item.quantity)}
+                              </span>
                             </div>
                           </div>
-                          
-                          <div className="flex flex-col items-end justify-between">
-                            <button 
-                              onClick={() => handleRemove(item.product.id)}
-                              className="text-zinc-600 hover:text-red-500 transition-colors cursor-pointer"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                            <span className="text-sm font-mono text-zinc-300">
-                              ${(item.product.price * item.quantity).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                            </span>
-                          </div>
-                        </div>
-                      ))
+                        );
+                      })
                     )}
                   </motion.div>
                 )}
@@ -174,7 +190,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                         }`}
                       >
                         <CreditCard size={14} />
-                        Cyber Card
+                        {t('products.paymentCard')}
                       </button>
                       <button
                         type="button"
@@ -186,7 +202,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                         }`}
                       >
                         <QrCode size={14} />
-                        PIX System
+                        {t('products.paymentPix')}
                       </button>
                     </div>
 
@@ -224,7 +240,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                         <div className="flex flex-col gap-3">
                           <input
                             type="text"
-                            placeholder="Card Number"
+                            placeholder={t('products.cardNumber')}
                             value={cardNumber}
                             onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, '').slice(0, 16))}
                             required
@@ -232,7 +248,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                           />
                           <input
                             type="text"
-                            placeholder="Cardholder Name"
+                            placeholder={t('products.cardHolder')}
                             value={cardName}
                             onChange={(e) => setCardName(e.target.value.toUpperCase())}
                             required
@@ -249,7 +265,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                             />
                             <input
                               type="password"
-                              placeholder="CVV"
+                              placeholder={t('products.cardCvv')}
                               value={cardCvv}
                               onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, '').slice(0, 3))}
                               required
@@ -259,7 +275,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                         </div>
 
                         <CyberButton type="submit" variant="primary" className="mt-4">
-                          Confirm Encryption
+                          {t('products.authorizeDeck')}
                         </CyberButton>
                       </form>
                     ) : (
@@ -275,7 +291,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                         <div>
                           <h4 className="text-xs uppercase tracking-wider text-white font-mono font-bold">Tactical QR-Port</h4>
                           <p className="text-[10px] text-zinc-500 mt-1 max-w-xs leading-relaxed">
-                            Complete the transaction using your banking terminal. Code expires in 5:00 minutes.
+                            {t('products.pixScan')}
                           </p>
                         </div>
                         
@@ -288,7 +304,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                             onClick={handleCopyPix}
                             className="text-[10px] uppercase font-mono tracking-widest text-neon-blue hover:text-white transition-colors cursor-pointer"
                           >
-                            {isCopied ? 'Copied' : 'Copy'}
+                            {isCopied ? t('products.copied') : t('products.copy')}
                           </button>
                         </div>
 
@@ -298,7 +314,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                           variant="primary" 
                           className="w-full mt-2"
                         >
-                          I Have Paid
+                          {t('products.verifyTrans')}
                         </CyberButton>
                       </div>
                     )}
@@ -322,9 +338,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                     </motion.div>
                     
                     <div>
-                      <h3 className="text-lg font-bold tracking-widest uppercase text-white font-mono">Uplink Confirmed</h3>
-                      <p className="text-xs text-zinc-400 mt-2 max-w-xs leading-relaxed font-light">
-                        Your transaction has been processed. The technological items are now scheduled for teleportation dispatch.
+                      <h3 className="text-lg font-bold tracking-widest uppercase text-white font-mono">{t('products.uplinkSynced')}</h3>
+                      <p className="text-xs text-zinc-400 mt-2 max-w-xs leading-relaxed font-light font-mono">
+                        {t('products.securedUplink')}
                       </p>
                     </div>
 
@@ -351,7 +367,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                       variant="outline"
                       className="w-full mt-4"
                     >
-                      Return to Deck
+                      {t('products.returnStore')}
                     </CyberButton>
                   </motion.div>
                 )}
@@ -362,9 +378,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
             {step === 'cart' && items.length > 0 && (
               <div className="pt-4 border-t border-zinc-900 mt-6 flex flex-col gap-4">
                 <div className="flex justify-between items-end font-mono">
-                  <span className="text-xs text-zinc-500 uppercase tracking-widest">Inventory Value:</span>
+                  <span className="text-xs text-zinc-500 uppercase tracking-widest">{t('products.totalValue')}</span>
                   <span className="text-lg font-black text-white">
-                    ${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    {formatPrice(totalAmount)}
                   </span>
                 </div>
                 
@@ -375,14 +391,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                     className="flex gap-2 items-center justify-center font-mono"
                   >
                     <Trash2 size={13} />
-                    Wipe
+                    {t('products.clearCart')}
                   </CyberButton>
                   <CyberButton
                     onClick={() => setStep('payment')}
                     variant="primary"
                     className="font-semibold"
                   >
-                    Uplink Init
+                    {t('products.initUplink')}
                   </CyberButton>
                 </div>
               </div>

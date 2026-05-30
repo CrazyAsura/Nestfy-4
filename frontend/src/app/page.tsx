@@ -5,6 +5,8 @@ import { Header } from '@/components/web/Header';
 import { ProductGrid } from '@/components/web/ProductGrid';
 import { CartDrawer } from '@/components/web/CartDrawer';
 import { MobileApp } from '@/components/mobile/MobileApp';
+import { SmartHubPromotions } from '@/components/web/SmartHubPromotions';
+import { useLanguage } from '@/lib/languageContext';
 import { motion } from 'framer-motion';
 import { Terminal, Cpu, Shield, HelpCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -13,7 +15,8 @@ export default function Home() {
   const [isMounted, setIsMounted] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
-
+  const { t } = useLanguage();
+  
   // Handle hydration check & responsive viewport detection
   useEffect(() => {
     setIsMounted(true);
@@ -62,29 +65,8 @@ export default function Home() {
         {/* Store Catalog & Info */}
         <div className="flex flex-col gap-12 w-full">
           
-          {/* Hero Welcome banner */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col gap-4 text-center md:text-left pt-6"
-          >
-            <div className="inline-flex items-center self-center md:self-start gap-2 bg-zinc-950/60 border border-neon-blue/15 px-3 py-1 rounded text-[10px] tracking-widest text-zinc-500 uppercase font-mono">
-              <Terminal size={12} className="text-neon-blue neon-text-glow animate-pulse" />
-              Dome Network: Synced & Online
-            </div>
-            
-            <h1 className="text-4xl md:text-5xl font-black tracking-tight leading-none uppercase">
-              Automate Your <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-neon-blue to-white neon-text-glow">
-                Living Space
-              </span>
-            </h1>
-            
-            <p className="max-w-xl text-zinc-400 text-sm md:text-base font-light leading-relaxed">
-              Welcome to Nestfy, the premium tech home store. Design your environment with unified neural dome hubs, intelligent self-learning thermostats, and LiDAR mapping robotic vacuums.
-            </p>
-          </motion.div>
+          {/* Smart Hub Promotions Campaign Carousel */}
+          <SmartHubPromotions />
 
           {/* Product grid Catalog */}
           <ProductGrid />
@@ -94,22 +76,22 @@ export default function Home() {
             <div className="flex items-center gap-3.5 p-4 rounded border border-zinc-950 bg-zinc-950/20">
               <Cpu size={24} className="text-neon-blue" />
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-white">Matter Supported</h4>
-                <p className="text-[10px] text-zinc-500 mt-0.5">Universal smart home device protocol bridges.</p>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-white">{t('footer.matterTitle')}</h4>
+                <p className="text-[10px] text-zinc-500 mt-0.5">{t('footer.matterDesc')}</p>
               </div>
             </div>
             <div className="flex items-center gap-3.5 p-4 rounded border border-zinc-950 bg-zinc-950/20">
               <Shield size={24} className="text-neon-blue" />
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-white">Offline Commands</h4>
-                <p className="text-[10px] text-zinc-500 mt-0.5">100% localized voice parsing for security.</p>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-white">{t('footer.offlineTitle')}</h4>
+                <p className="text-[10px] text-zinc-500 mt-0.5">{t('footer.offlineDesc')}</p>
               </div>
             </div>
             <div className="flex items-center gap-3.5 p-4 rounded border border-zinc-950 bg-zinc-950/20">
               <HelpCircle size={24} className="text-neon-blue" />
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-white">Terminal Support</h4>
-                <p className="text-[10px] text-zinc-500 mt-0.5">Secure API routes and developer integrations.</p>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-white">{t('footer.developerTitle')}</h4>
+                <p className="text-[10px] text-zinc-500 mt-0.5">{t('footer.developerDesc')}</p>
               </div>
             </div>
           </div>
@@ -125,13 +107,13 @@ export default function Home() {
       {/* Desktop Footer */}
       <footer className="w-full border-t border-zinc-900 bg-black/40 py-12 relative z-10 text-center text-xs tracking-wider text-zinc-500 font-mono uppercase flex flex-col gap-4">
         <div className="flex justify-center gap-6 flex-wrap text-[10px]">
-          <Link href="/about" className="hover:text-neon-blue transition-colors">About Us</Link>
-          <Link href="/faq" className="hover:text-neon-blue transition-colors">FAQ</Link>
-          <Link href="/privacy" className="hover:text-neon-blue transition-colors">Privacy Policy</Link>
-          <Link href="/cookies" className="hover:text-neon-blue transition-colors">Cookies Policy</Link>
-          <Link href="/terms" className="hover:text-neon-blue transition-colors">Terms of Use</Link>
+          <Link href="/about" className="hover:text-neon-blue transition-colors">{t('footer.aboutUs')}</Link>
+          <Link href="/faq" className="hover:text-neon-blue transition-colors">{t('nav.faq')}</Link>
+          <Link href="/privacy" className="hover:text-neon-blue transition-colors">{t('footer.privacyPolicy')}</Link>
+          <Link href="/cookies" className="hover:text-neon-blue transition-colors">{t('footer.cookiesPolicy')}</Link>
+          <Link href="/terms" className="hover:text-neon-blue transition-colors">{t('footer.termsOfUse')}</Link>
         </div>
-        <p className="text-[10px] text-zinc-700">© 2026 Nestfy Tech Home. Clean Arch & Matter Compliant.</p>
+        <p className="text-[10px] text-zinc-700">{t('footer.copyright')}</p>
       </footer>
     </div>
   );

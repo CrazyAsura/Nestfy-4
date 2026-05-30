@@ -5,5 +5,5 @@ public enum TypeUserEnum {
     EMPLOYEE,
     ADMIN,
     SUPER_ADMIN,
-    MERCHANT
+    SAILOR
 }
