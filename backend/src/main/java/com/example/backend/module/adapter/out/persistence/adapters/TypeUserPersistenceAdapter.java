@@ -10,10 +10,10 @@ import com.example.backend.module.adapter.out.persistence.repositories.TypeUserR
 import com.example.backend.module.domain.models.TypeUser;
 import com.example.backend.module.domain.models.TypeUserEnum;
 import com.example.backend.module.domain.models.User;
-import com.example.backend.module.domain.ports.out.TypeUserRepositoryPortOut;
+import com.example.backend.module.domain.ports.out.ITypeUserRepositoryPortOut;
 
 @Component
-public class TypeUserPersistenceAdapter implements TypeUserRepositoryPortOut {
+public class TypeUserPersistenceAdapter implements ITypeUserRepositoryPortOut {
 
     @Autowired
     private TypeUserRepository typeUserRepository;
@@ -48,3 +48,4 @@ public class TypeUserPersistenceAdapter implements TypeUserRepositoryPortOut {
         return typeUserRepository.findByUser(user);
     }
 }
+

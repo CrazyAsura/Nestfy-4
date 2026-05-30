@@ -1,12 +1,10 @@
 package com.example.backend.module.infrastructure.messaging;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import com.example.backend.module.domain.ports.out.EventPublisherPortOut;
-import com.example.backend.module.infrastructure.config.KafkaConfig;
+import com.example.backend.module.domain.ports.out.IEventPublisherPortOut;
 
 @Component
-public class EventPublisherImpl implements EventPublisherPortOut {
+public class EventPublisherImpl implements IEventPublisherPortOut {
     private final KafkaConfig kafkaConfig;
 
     public EventPublisherImpl(KafkaConfig kafkaConfig) {
@@ -15,6 +13,7 @@ public class EventPublisherImpl implements EventPublisherPortOut {
 
     @Override
     public void publish(Object event) {
-        kafkaConfig.sen(event);
+        kafkaConfig.send(event);
     }
 }
+

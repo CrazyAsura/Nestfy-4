@@ -29,4 +29,5 @@ public interface AddressRepository extends JpaRepository<Address, Long> {
     public List<Address> findByCountry(String country);
 
     public List<Address> findByComplement(String complement);
+    
 }

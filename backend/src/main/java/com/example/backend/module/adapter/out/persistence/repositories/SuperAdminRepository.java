@@ -1,6 +1,7 @@
 package com.example.backend.module.adapter.out.persistence.repositories;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -14,4 +15,10 @@ public interface SuperAdminRepository extends JpaRepository<SuperAdmin, Long> {
     public List<SuperAdmin> findByUser(User user);
 
     public List<SuperAdmin> findByActive(Boolean active);
+
+    public Optional<SuperAdmin> findByUsername(String username);
+
+    public Optional<SuperAdmin> findByEmail(String email);
+
+    public Optional<SuperAdmin> findByCpf(String cpf);
 }

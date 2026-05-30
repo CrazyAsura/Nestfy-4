@@ -1,0 +1,18 @@
+package com.example.backend.module.domain.usecases;
+import com.example.backend.module.domain.models.Admin;
+import com.example.backend.module.domain.ports.in.UpdateAdminUseCasePortIn;
+import com.example.backend.module.domain.ports.out.IAdminRepositoryPortOut;
+
+public class UpdateAdminUseCase implements UpdateAdminUseCasePortIn {
+    private final IAdminRepositoryPortOut adminRepositoryPortOut;
+
+    public UpdateAdminUseCase(IAdminRepositoryPortOut adminRepositoryPortOut) {
+        this.adminRepositoryPortOut = adminRepositoryPortOut;
+    }
+
+    @Override
+    public Admin execute(Admin admin) {
+        return adminRepositoryPortOut.save(admin);
+    }
+}
+

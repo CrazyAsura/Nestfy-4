@@ -12,4 +12,10 @@ import com.example.backend.module.domain.models.Stock;
 public interface StockRepository extends JpaRepository<Stock, Long> {
 
     public List<Stock> findByProduct(Product product);
+
+    public List<Stock> findByStoreId(Long storeId);
+
+    public List<Stock> findByProductId(Long productId);
+
+    public List<Stock> findByActive(Boolean active);
 }

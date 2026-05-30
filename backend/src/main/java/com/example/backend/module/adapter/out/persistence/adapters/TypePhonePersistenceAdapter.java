@@ -10,10 +10,10 @@ import com.example.backend.module.adapter.out.persistence.repositories.TypePhone
 import com.example.backend.module.domain.models.TypePhone;
 import com.example.backend.module.domain.models.TypePhoneEnum;
 import com.example.backend.module.domain.models.User;
-import com.example.backend.module.domain.ports.out.TypePhoneRepositoryPortOut;
+import com.example.backend.module.domain.ports.out.ITypePhoneRepositoryPortOut;
 
 @Component
-public class TypePhonePersistenceAdapter implements TypePhoneRepositoryPortOut {
+public class TypePhonePersistenceAdapter implements ITypePhoneRepositoryPortOut {
 
     @Autowired
     private TypePhoneRepository typePhoneRepository;
@@ -48,3 +48,4 @@ public class TypePhonePersistenceAdapter implements TypePhoneRepositoryPortOut {
         return typePhoneRepository.findByUser(user);
     }
 }
+

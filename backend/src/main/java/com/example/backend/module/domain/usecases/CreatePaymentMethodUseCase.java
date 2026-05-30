@@ -1,4 +1,20 @@
 package com.example.backend.module.domain.usecases;
+import com.example.backend.module.domain.models.PaymentMethod;
+import com.example.backend.module.domain.ports.in.CreatePaymentMethodUseCasePortIn;
+import com.example.backend.module.domain.ports.out.IPaymentMethodRepositoryPortOut;
 
-public class CreatePaymentMethodUseCase {
+public class CreatePaymentMethodUseCase implements CreatePaymentMethodUseCasePortIn {
+    private final IPaymentMethodRepositoryPortOut paymentMethodRepositoryPortOut;
+
+    public CreatePaymentMethodUseCase(IPaymentMethodRepositoryPortOut paymentMethodRepositoryPortOut) {
+        this.paymentMethodRepositoryPortOut = paymentMethodRepositoryPortOut;
+    }
+
+    @Override
+    public PaymentMethod execute(PaymentMethod paymentMethod) {
+        return paymentMethodRepositoryPortOut.save(paymentMethod);
+    }
 }
+
+
+
