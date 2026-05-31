@@ -1,47 +1,74 @@
 package com.example.backend.module.domain.services;
 
-import com.example.backend.module.domain.models.Payment;
-import com.example.backend.module.domain.ports.out.IPaymentRepositoryPortOut;
-import com.example.backend.module.domain.usecases.CreatePaymentUseCase;
-import com.example.backend.module.domain.usecases.DeletePaymentUseCase;
-import com.example.backend.module.domain.usecases.GetPaymentUseCase;
-import com.example.backend.module.domain.usecases.ProcessPaymentUseCase;
-import com.example.backend.module.domain.usecases.UpdatePaymentUseCase;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.backend.module.domain.models.*;
+import com.example.backend.module.adapter.out.persistence.adapters.PaymentPersistenceAdapter;
 
 @Service
 public class PaymentService {
-    private final CreatePaymentUseCase createPaymentUseCase;
-    private final GetPaymentUseCase getPaymentUseCase;
-    private final UpdatePaymentUseCase updatePaymentUseCase;
-    private final DeletePaymentUseCase deletePaymentUseCase;
-    private final ProcessPaymentUseCase processPaymentUseCase;
 
-    public PaymentService(IPaymentRepositoryPortOut paymentRepositoryPortOut) {
-        this.createPaymentUseCase = new CreatePaymentUseCase(paymentRepositoryPortOut);
-        this.getPaymentUseCase = new GetPaymentUseCase(paymentRepositoryPortOut);
-        this.updatePaymentUseCase = new UpdatePaymentUseCase(paymentRepositoryPortOut);
-        this.deletePaymentUseCase = new DeletePaymentUseCase(paymentRepositoryPortOut);
-        this.processPaymentUseCase = new ProcessPaymentUseCase(paymentRepositoryPortOut);
+    private final PaymentPersistenceAdapter paymentPersistenceAdapter;
+
+    @Autowired
+    public PaymentService(PaymentPersistenceAdapter paymentPersistenceAdapter) {
+        this.paymentPersistenceAdapter = paymentPersistenceAdapter;
     }
 
     public Payment createPayment(Payment payment) {
-        return createPaymentUseCase.execute(payment);
+        if (payment == null) {
+            throw new IllegalArgumentException("Payment cannot be null");
+        }
+        return paymentPersistenceAdapter.save(payment);
     }
 
     public Payment getPayment(Long id) {
-        return getPaymentUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        return paymentPersistenceAdapter.findById(id).orElse(null);
     }
 
     public Payment updatePayment(Payment payment) {
-        return updatePaymentUseCase.execute(payment);
+        if (payment == null) {
+            throw new IllegalArgumentException("Payment cannot be null");
+        }
+        return paymentPersistenceAdapter.save(payment);
     }
 
     public void deletePayment(Long id) {
-        deletePaymentUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        paymentPersistenceAdapter.deleteById(id);
+    }
+    public Payment processPayment(Payment payment) {
+        if (payment == null) {
+            throw new IllegalArgumentException("Payment cannot be null");
+        }
+        return paymentPersistenceAdapter.processPayment(payment);
     }
 
-    public Payment processPayment(Payment payment) {
-        return processPaymentUseCase.execute(payment);
+    public List<Payment> findByOrderId(Long orderId) {
+        if (orderId == null) {
+            throw new IllegalArgumentException("orderId cannot be null");
+        }
+        return paymentPersistenceAdapter.findByOrderId(orderId);
+    }
+
+    public List<Payment> findByPaymentMethodId(Long paymentMethodId) {
+        if (paymentMethodId == null) {
+            throw new IllegalArgumentException("paymentMethodId cannot be null");
+        }
+        return paymentPersistenceAdapter.findByPaymentMethodId(paymentMethodId);
+    }
+
+    public List<Payment> findByActive(Boolean active) {
+        if (active == null) {
+            throw new IllegalArgumentException("active cannot be null");
+        }
+        return paymentPersistenceAdapter.findByActive(active);
     }
 }

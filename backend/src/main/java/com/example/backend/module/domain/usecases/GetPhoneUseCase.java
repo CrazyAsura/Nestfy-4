@@ -1,8 +1,11 @@
 package com.example.backend.module.domain.usecases;
+
+import org.springframework.stereotype.Component;
 import com.example.backend.module.domain.models.Phone;
 import com.example.backend.module.domain.ports.in.GetPhoneUseCasePortIn;
 import com.example.backend.module.domain.ports.out.IPhoneRepositoryPortOut;
 
+@Component
 public class GetPhoneUseCase implements GetPhoneUseCasePortIn {
     private final IPhoneRepositoryPortOut phoneRepositoryPortOut;
 

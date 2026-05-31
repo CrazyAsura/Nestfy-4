@@ -1,40 +1,53 @@
 package com.example.backend.module.domain.services;
 
-import com.example.backend.module.domain.models.ImageType;
-import com.example.backend.module.domain.ports.out.IImageTypeRepositoryPortOut;
-import com.example.backend.module.domain.usecases.CreateImageTypeUseCase;
-import com.example.backend.module.domain.usecases.DeleteImageTypeUseCase;
-import com.example.backend.module.domain.usecases.GetImageTypeUseCase;
-import com.example.backend.module.domain.usecases.UpdateImageTypeUseCase;
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.backend.module.domain.models.*;
+import com.example.backend.module.adapter.out.persistence.adapters.ImageTypePersistenceAdapter;
 
 @Service
 public class ImageTypeService {
-    private final CreateImageTypeUseCase createImageTypeUseCase;
-    private final GetImageTypeUseCase getImageTypeUseCase;
-    private final UpdateImageTypeUseCase updateImageTypeUseCase;
-    private final DeleteImageTypeUseCase deleteImageTypeUseCase;
 
-    public ImageTypeService(IImageTypeRepositoryPortOut imageTypeRepositoryPortOut) {
-        this.createImageTypeUseCase = new CreateImageTypeUseCase(imageTypeRepositoryPortOut);
-        this.getImageTypeUseCase = new GetImageTypeUseCase(imageTypeRepositoryPortOut);
-        this.updateImageTypeUseCase = new UpdateImageTypeUseCase(imageTypeRepositoryPortOut);
-        this.deleteImageTypeUseCase = new DeleteImageTypeUseCase(imageTypeRepositoryPortOut);
+    private final ImageTypePersistenceAdapter imageTypePersistenceAdapter;
+
+    @Autowired
+    public ImageTypeService(ImageTypePersistenceAdapter imageTypePersistenceAdapter) {
+        this.imageTypePersistenceAdapter = imageTypePersistenceAdapter;
     }
 
-    public ImageType createImageType(ImageType imagetype) {
-        return createImageTypeUseCase.execute(imagetype);
+    public ImageType createImageType(ImageType imageType) {
+        if (imageType == null) {
+            throw new IllegalArgumentException("ImageType cannot be null");
+        }
+        return imageTypePersistenceAdapter.save(imageType);
     }
 
     public ImageType getImageType(Long id) {
-        return getImageTypeUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        return imageTypePersistenceAdapter.findById(id).orElse(null);
     }
 
-    public ImageType updateImageType(ImageType imagetype) {
-        return updateImageTypeUseCase.execute(imagetype);
+    public ImageType updateImageType(ImageType imageType) {
+        if (imageType == null) {
+            throw new IllegalArgumentException("ImageType cannot be null");
+        }
+        return imageTypePersistenceAdapter.save(imageType);
     }
 
     public void deleteImageType(Long id) {
-        deleteImageTypeUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        imageTypePersistenceAdapter.deleteById(id);
+    }
+    public Optional<ImageType> findByCode(String code) {
+        if (code == null) {
+            throw new IllegalArgumentException("code cannot be null");
+        }
+        return imageTypePersistenceAdapter.findByCode(code);
     }
 }

@@ -1,40 +1,63 @@
 package com.example.backend.module.domain.services;
 
-import com.example.backend.module.domain.models.TypeUser;
-import com.example.backend.module.domain.ports.out.ITypeUserRepositoryPortOut;
-import com.example.backend.module.domain.usecases.CreateTypeUserUseCase;
-import com.example.backend.module.domain.usecases.DeleteTypeUserUseCase;
-import com.example.backend.module.domain.usecases.GetTypeUserUseCase;
-import com.example.backend.module.domain.usecases.UpdateTypeUserUseCase;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.backend.module.adapter.out.persistence.adapters.TypeUserPersistenceAdapter;
+import com.example.backend.module.domain.models.TypeUser;
+import com.example.backend.module.domain.models.TypeUserEnum;
+import com.example.backend.module.domain.models.User;
 
 @Service
 public class TypeUserService {
-    private final CreateTypeUserUseCase createTypeUserUseCase;
-    private final GetTypeUserUseCase getTypeUserUseCase;
-    private final UpdateTypeUserUseCase updateTypeUserUseCase;
-    private final DeleteTypeUserUseCase deleteTypeUserUseCase;
 
-    public TypeUserService(ITypeUserRepositoryPortOut typeUserRepositoryPortOut) {
-        this.createTypeUserUseCase = new CreateTypeUserUseCase(typeUserRepositoryPortOut);
-        this.getTypeUserUseCase = new GetTypeUserUseCase(typeUserRepositoryPortOut);
-        this.updateTypeUserUseCase = new UpdateTypeUserUseCase(typeUserRepositoryPortOut);
-        this.deleteTypeUserUseCase = new DeleteTypeUserUseCase(typeUserRepositoryPortOut);
+    private final TypeUserPersistenceAdapter typeUserPersistenceAdapter;
+
+    @Autowired
+    public TypeUserService(TypeUserPersistenceAdapter typeUserPersistenceAdapter) {
+        this.typeUserPersistenceAdapter = typeUserPersistenceAdapter;
     }
 
-    public TypeUser createTypeUser(TypeUser typeuser) {
-        return createTypeUserUseCase.execute(typeuser);
+    public TypeUser createTypeUser(TypeUser typeUser) {
+        if (typeUser == null) {
+            throw new IllegalArgumentException("TypeUser cannot be null");
+        }
+        return typeUserPersistenceAdapter.save(typeUser);
     }
 
     public TypeUser getTypeUser(Long id) {
-        return getTypeUserUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        return typeUserPersistenceAdapter.findById(id).orElse(null);
     }
 
-    public TypeUser updateTypeUser(TypeUser typeuser) {
-        return updateTypeUserUseCase.execute(typeuser);
+    public TypeUser updateTypeUser(TypeUser typeUser) {
+        if (typeUser == null) {
+            throw new IllegalArgumentException("TypeUser cannot be null");
+        }
+        return typeUserPersistenceAdapter.save(typeUser);
     }
 
     public void deleteTypeUser(Long id) {
-        deleteTypeUserUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        typeUserPersistenceAdapter.deleteById(id);
+    }
+
+    public List<TypeUser> findByType(TypeUserEnum type) {
+        if (type == null) {
+            throw new IllegalArgumentException("type cannot be null");
+        }
+        return typeUserPersistenceAdapter.findByType(type);
+    }
+
+    public List<TypeUser> findByUser(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("user cannot be null");
+        }
+        return typeUserPersistenceAdapter.findByUser(user);
     }
 }

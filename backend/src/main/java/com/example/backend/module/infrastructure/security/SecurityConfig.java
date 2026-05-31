@@ -22,7 +22,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/login", "/swagger-ui/**", "/v3/api-docs/**", "/graphql", "/graphiql/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

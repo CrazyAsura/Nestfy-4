@@ -6,46 +6,65 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.example.backend.module.adapter.out.persistence.repositories.TypePhoneRepository;
 import com.example.backend.module.domain.models.TypePhone;
+import com.example.backend.module.domain.ports.out.ITypePhoneRepositoryPortOut;
+import com.example.backend.module.domain.usecases.CreateTypePhoneUseCase;
+import com.example.backend.module.domain.usecases.DeleteTypePhoneUseCase;
+import com.example.backend.module.domain.usecases.GetTypePhoneUseCase;
+import com.example.backend.module.domain.usecases.UpdateTypePhoneUseCase;
 import com.example.backend.module.domain.models.TypePhoneEnum;
 import com.example.backend.module.domain.models.User;
-import com.example.backend.module.domain.ports.out.ITypePhoneRepositoryPortOut;
 
 @Component
-public class TypePhonePersistenceAdapter implements ITypePhoneRepositoryPortOut {
+public class TypePhonePersistenceAdapter {
+
+    private final CreateTypePhoneUseCase createTypePhoneUseCase;
+    private final GetTypePhoneUseCase getTypePhoneUseCase;
+    private final UpdateTypePhoneUseCase updateTypePhoneUseCase;
+    private final DeleteTypePhoneUseCase deleteTypePhoneUseCase;
+    private final ITypePhoneRepositoryPortOut typePhoneRepositoryPortOut;
 
     @Autowired
-    private TypePhoneRepository typePhoneRepository;
-
-    @Override
-    public TypePhone save(TypePhone typePhone) {
-        return typePhoneRepository.save(typePhone);
+    public TypePhonePersistenceAdapter(CreateTypePhoneUseCase createTypePhoneUseCase,
+            GetTypePhoneUseCase getTypePhoneUseCase,
+            UpdateTypePhoneUseCase updateTypePhoneUseCase,
+            DeleteTypePhoneUseCase deleteTypePhoneUseCase,
+            ITypePhoneRepositoryPortOut typePhoneRepositoryPortOut) {
+        this.createTypePhoneUseCase = createTypePhoneUseCase;
+        this.getTypePhoneUseCase = getTypePhoneUseCase;
+        this.updateTypePhoneUseCase = updateTypePhoneUseCase;
+        this.deleteTypePhoneUseCase = deleteTypePhoneUseCase;
+        this.typePhoneRepositoryPortOut = typePhoneRepositoryPortOut;
     }
 
-    @Override
     public Optional<TypePhone> findById(Long id) {
-        return typePhoneRepository.findById(id);
+        return Optional.ofNullable(getTypePhoneUseCase.execute(id));
     }
 
-    @Override
     public Iterable<TypePhone> findAll() {
-        return typePhoneRepository.findAll();
+        return typePhoneRepositoryPortOut.findAll();
     }
 
-    @Override
+    public TypePhone save(TypePhone entity) {
+        if (entity == null) {
+            throw new IllegalArgumentException("Entity cannot be null");
+        }
+        if (entity.getId() == null) {
+            return createTypePhoneUseCase.execute(entity);
+        } else {
+            return updateTypePhoneUseCase.execute(entity);
+        }
+    }
+
     public void deleteById(Long id) {
-        typePhoneRepository.deleteById(id);
+        deleteTypePhoneUseCase.execute(id);
     }
 
-    @Override
     public List<TypePhone> findByType(TypePhoneEnum type) {
-        return typePhoneRepository.findByType(type);
+        return typePhoneRepositoryPortOut.findByType(type);
     }
 
-    @Override
     public List<TypePhone> findByUser(User user) {
-        return typePhoneRepository.findByUser(user);
+        return typePhoneRepositoryPortOut.findByUser(user);
     }
 }
-

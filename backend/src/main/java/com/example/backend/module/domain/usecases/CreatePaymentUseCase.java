@@ -1,8 +1,11 @@
 package com.example.backend.module.domain.usecases;
+
+import org.springframework.stereotype.Component;
 import com.example.backend.module.domain.models.Payment;
 import com.example.backend.module.domain.ports.in.CreatePaymentUseCasePortIn;
 import com.example.backend.module.domain.ports.out.IPaymentRepositoryPortOut;
 
+@Component
 public class CreatePaymentUseCase implements CreatePaymentUseCasePortIn {
     private final IPaymentRepositoryPortOut paymentRepositoryPortOut;
 

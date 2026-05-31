@@ -6,60 +6,75 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.example.backend.module.adapter.out.persistence.repositories.SailorRepository;
 import com.example.backend.module.domain.models.Sailor;
 import com.example.backend.module.domain.ports.out.ISailorRepositoryPortOut;
+import com.example.backend.module.domain.usecases.CreateSailorUseCase;
+import com.example.backend.module.domain.usecases.DeleteSailorUseCase;
+import com.example.backend.module.domain.usecases.GetSailorUseCase;
+import com.example.backend.module.domain.usecases.UpdateSailorUseCase;
 
 @Component
-public class SailorPersistenceAdapter implements ISailorRepositoryPortOut {
+public class SailorPersistenceAdapter {
+
+    private final CreateSailorUseCase createSailorUseCase;
+    private final GetSailorUseCase getSailorUseCase;
+    private final UpdateSailorUseCase updateSailorUseCase;
+    private final DeleteSailorUseCase deleteSailorUseCase;
+    private final ISailorRepositoryPortOut sailorRepositoryPortOut;
 
     @Autowired
-    private SailorRepository sailorRepository;
-
-    @Override
-    public Sailor save(Sailor sailor) {
-        return sailorRepository.save(sailor);
+    public SailorPersistenceAdapter(CreateSailorUseCase createSailorUseCase,
+            GetSailorUseCase getSailorUseCase,
+            UpdateSailorUseCase updateSailorUseCase,
+            DeleteSailorUseCase deleteSailorUseCase,
+            ISailorRepositoryPortOut sailorRepositoryPortOut) {
+        this.createSailorUseCase = createSailorUseCase;
+        this.getSailorUseCase = getSailorUseCase;
+        this.updateSailorUseCase = updateSailorUseCase;
+        this.deleteSailorUseCase = deleteSailorUseCase;
+        this.sailorRepositoryPortOut = sailorRepositoryPortOut;
     }
 
-    @Override
     public Optional<Sailor> findById(Long id) {
-        return sailorRepository.findById(id);
+        return Optional.ofNullable(getSailorUseCase.execute(id));
     }
 
-    @Override
     public Iterable<Sailor> findAll() {
-        return sailorRepository.findAll();
+        return sailorRepositoryPortOut.findAll();
     }
 
-    @Override
+    public Sailor save(Sailor entity) {
+        if (entity == null) {
+            throw new IllegalArgumentException("Entity cannot be null");
+        }
+        if (entity.getId() == null) {
+            return createSailorUseCase.execute(entity);
+        } else {
+            return updateSailorUseCase.execute(entity);
+        }
+    }
+
     public void deleteById(Long id) {
-        sailorRepository.deleteById(id);
+        deleteSailorUseCase.execute(id);
     }
 
-    @Override
     public Optional<Sailor> findByEmail(String email) {
-        return sailorRepository.findByEmail(email);
+        return sailorRepositoryPortOut.findByEmail(email);
     }
 
-    @Override
     public Optional<Sailor> findByCpf(String cpf) {
-        return sailorRepository.findByCpf(cpf);
+        return sailorRepositoryPortOut.findByCpf(cpf);
     }
 
-    @Override
     public Optional<Sailor> findByCnpj(String cnpj) {
-        return sailorRepository.findByCnpj(cnpj);
+        return sailorRepositoryPortOut.findByCnpj(cnpj);
     }
 
-    @Override
     public List<Sailor> findByType(String type) {
-        return sailorRepository.findAll().stream()
-                .filter(s -> s.getType() != null && s.getType().getType() != null && s.getType().getType().name().equalsIgnoreCase(type))
-                .toList();
+        return sailorRepositoryPortOut.findByType(type);
     }
 
-    @Override
     public List<Sailor> findByActive(Boolean active) {
-        return sailorRepository.findByActive(active);
+        return sailorRepositoryPortOut.findByActive(active);
     }
 }

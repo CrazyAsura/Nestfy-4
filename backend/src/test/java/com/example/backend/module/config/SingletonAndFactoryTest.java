@@ -12,10 +12,13 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 
 import com.example.backend.module.domain.factory.OrderFactory;
+import com.example.backend.module.domain.factory.PIXFactory;
 import com.example.backend.module.domain.factory.ProductFactory;
 import com.example.backend.module.domain.factory.UserFactory;
 import com.example.backend.module.domain.models.Order;
+import com.example.backend.module.domain.models.PIX;
 import com.example.backend.module.domain.models.Product;
+import com.example.backend.module.domain.models.TypeKeyPixEnum;
 import com.example.backend.module.domain.models.User;
 
 class SingletonAndFactoryTest {
@@ -100,4 +103,21 @@ class SingletonAndFactoryTest {
         assertEquals(1000.0, order.getTotal());
         assertEquals((100.0 / 1100.0) * 100.0, order.getDiscountPercentage());
     }
+
+    @Test
+    void testPIXFactory() {
+        PIXFactory pixFactory = new PIXFactory();
+        PIX pix = pixFactory.createPIX(1L, "12345678909", TypeKeyPixEnum.CPF, "My CPF Key", true);
+        assertNotNull(pix);
+        assertEquals(1L, pix.getId());
+        assertEquals("12345678909", pix.getChavePix());
+        assertEquals(TypeKeyPixEnum.CPF, pix.getTypeKeyPix());
+        assertEquals("My CPF Key", pix.getDescription());
+        assertTrue(pix.getActive());
+
+        PIX empty = pixFactory.createEmptyPIX();
+        assertNotNull(empty);
+        assertNull(empty.getId());
+    }
 }
+

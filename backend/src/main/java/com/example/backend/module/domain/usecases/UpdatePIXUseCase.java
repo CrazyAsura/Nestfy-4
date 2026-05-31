@@ -1,8 +1,11 @@
 package com.example.backend.module.domain.usecases;
+
 import com.example.backend.module.domain.models.PIX;
 import com.example.backend.module.domain.ports.in.UpdatePIXUseCasePortIn;
 import com.example.backend.module.domain.ports.out.IPIXRepositoryPortOut;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UpdatePIXUseCase implements UpdatePIXUseCasePortIn {
     private final IPIXRepositoryPortOut pixRepositoryPortOut;
 
@@ -15,4 +18,3 @@ public class UpdatePIXUseCase implements UpdatePIXUseCasePortIn {
         return pixRepositoryPortOut.save(pix);
     }
 }
-

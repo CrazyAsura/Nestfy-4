@@ -1,8 +1,11 @@
 package com.example.backend.module.domain.usecases;
+
+import org.springframework.stereotype.Component;
 import com.example.backend.module.domain.models.Stock;
 import com.example.backend.module.domain.ports.in.GetStockUseCasePortIn;
 import com.example.backend.module.domain.ports.out.IStockRepositoryPortOut;
 
+@Component
 public class GetStockUseCase implements GetStockUseCasePortIn {
     private final IStockRepositoryPortOut stockRepositoryPortOut;
 

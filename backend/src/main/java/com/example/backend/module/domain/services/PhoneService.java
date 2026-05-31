@@ -1,40 +1,61 @@
 package com.example.backend.module.domain.services;
 
-import com.example.backend.module.domain.models.Phone;
-import com.example.backend.module.domain.ports.out.IPhoneRepositoryPortOut;
-import com.example.backend.module.domain.usecases.CreatePhoneUseCase;
-import com.example.backend.module.domain.usecases.DeletePhoneUseCase;
-import com.example.backend.module.domain.usecases.GetPhoneUseCase;
-import com.example.backend.module.domain.usecases.UpdatePhoneUseCase;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.backend.module.domain.models.*;
+import com.example.backend.module.adapter.out.persistence.adapters.PhonePersistenceAdapter;
 
 @Service
 public class PhoneService {
-    private final CreatePhoneUseCase createPhoneUseCase;
-    private final GetPhoneUseCase getPhoneUseCase;
-    private final UpdatePhoneUseCase updatePhoneUseCase;
-    private final DeletePhoneUseCase deletePhoneUseCase;
 
-    public PhoneService(IPhoneRepositoryPortOut phoneRepositoryPortOut) {
-        this.createPhoneUseCase = new CreatePhoneUseCase(phoneRepositoryPortOut);
-        this.getPhoneUseCase = new GetPhoneUseCase(phoneRepositoryPortOut);
-        this.updatePhoneUseCase = new UpdatePhoneUseCase(phoneRepositoryPortOut);
-        this.deletePhoneUseCase = new DeletePhoneUseCase(phoneRepositoryPortOut);
+    private final PhonePersistenceAdapter phonePersistenceAdapter;
+
+    @Autowired
+    public PhoneService(PhonePersistenceAdapter phonePersistenceAdapter) {
+        this.phonePersistenceAdapter = phonePersistenceAdapter;
     }
 
     public Phone createPhone(Phone phone) {
-        return createPhoneUseCase.execute(phone);
+        if (phone == null) {
+            throw new IllegalArgumentException("Phone cannot be null");
+        }
+        return phonePersistenceAdapter.save(phone);
     }
 
     public Phone getPhone(Long id) {
-        return getPhoneUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        return phonePersistenceAdapter.findById(id).orElse(null);
     }
 
     public Phone updatePhone(Phone phone) {
-        return updatePhoneUseCase.execute(phone);
+        if (phone == null) {
+            throw new IllegalArgumentException("Phone cannot be null");
+        }
+        return phonePersistenceAdapter.save(phone);
     }
 
     public void deletePhone(Long id) {
-        deletePhoneUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        phonePersistenceAdapter.deleteById(id);
+    }
+    public Optional<Phone> findByNumber(String number) {
+        if (number == null) {
+            throw new IllegalArgumentException("number cannot be null");
+        }
+        return phonePersistenceAdapter.findByNumber(number);
+    }
+
+    public List<Phone> findByUserId(Long userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("userId cannot be null");
+        }
+        return phonePersistenceAdapter.findByUserId(userId);
     }
 }

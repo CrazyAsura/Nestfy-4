@@ -1,40 +1,63 @@
 package com.example.backend.module.domain.services;
 
-import com.example.backend.module.domain.models.Address;
-import com.example.backend.module.domain.ports.out.IAddressRepositoryPortOut;
-import com.example.backend.module.domain.usecases.CreateAddressUseCase;
-import com.example.backend.module.domain.usecases.DeleteAddressUseCase;
-import com.example.backend.module.domain.usecases.GetAddressUseCase;
-import com.example.backend.module.domain.usecases.UpdateAddressUseCase;
+import java.util.List;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.backend.module.adapter.out.persistence.adapters.AddressPersistenceAdapter;
+import com.example.backend.module.domain.models.Address;
 
 @Service
 public class AddressService {
-    private final CreateAddressUseCase createAddressUseCase;
-    private final GetAddressUseCase getAddressUseCase;
-    private final UpdateAddressUseCase updateAddressUseCase;
-    private final DeleteAddressUseCase deleteAddressUseCase;
 
-    public AddressService(IAddressRepositoryPortOut addressRepositoryPortOut) {
-        this.createAddressUseCase = new CreateAddressUseCase(addressRepositoryPortOut);
-        this.getAddressUseCase = new GetAddressUseCase(addressRepositoryPortOut);
-        this.updateAddressUseCase = new UpdateAddressUseCase(addressRepositoryPortOut);
-        this.deleteAddressUseCase = new DeleteAddressUseCase(addressRepositoryPortOut);
+    private final AddressPersistenceAdapter addressPersistenceAdapter;
+
+    @Autowired
+    public AddressService(AddressPersistenceAdapter addressPersistenceAdapter) {
+        this.addressPersistenceAdapter = addressPersistenceAdapter;
     }
 
     public Address createAddress(Address address) {
-        return createAddressUseCase.execute(address);
+        if (address == null) {
+            throw new IllegalArgumentException("Address cannot be null");
+        }
+        return addressPersistenceAdapter.save(address);
     }
 
     public Address getAddress(Long id) {
-        return getAddressUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        return addressPersistenceAdapter.findById(id).orElse(null);
     }
 
     public Address updateAddress(Address address) {
-        return updateAddressUseCase.execute(address);
+        if (address == null) {
+            throw new IllegalArgumentException("Address cannot be null");
+        }
+        return addressPersistenceAdapter.save(address);
     }
 
     public void deleteAddress(Long id) {
-        deleteAddressUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        addressPersistenceAdapter.deleteById(id);
+    }
+
+    public List<Address> findByUserId(Long userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("userId cannot be null");
+        }
+        return addressPersistenceAdapter.findByUserId(userId);
+    }
+
+    public List<Address> findByActive(Boolean active) {
+        if (active == null) {
+            throw new IllegalArgumentException("active cannot be null");
+        }
+        return addressPersistenceAdapter.findByActive(active);
     }
 }

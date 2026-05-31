@@ -1,8 +1,11 @@
 package com.example.backend.module.domain.usecases;
+
+import org.springframework.stereotype.Component;
 import com.example.backend.module.domain.models.ImageType;
 import com.example.backend.module.domain.ports.in.GetImageTypeUseCasePortIn;
 import com.example.backend.module.domain.ports.out.IImageTypeRepositoryPortOut;
 
+@Component
 public class GetImageTypeUseCase implements GetImageTypeUseCasePortIn {
     private final IImageTypeRepositoryPortOut imageTypeRepositoryPortOut;
 

@@ -1,8 +1,11 @@
 package com.example.backend.module.domain.usecases;
+
+import org.springframework.stereotype.Component;
 import com.example.backend.module.domain.models.Product;
 import com.example.backend.module.domain.ports.in.UpdateProductUseCasePortIn;
 import com.example.backend.module.domain.ports.out.IProductRepositoryPortOut;
 
+@Component
 public class UpdateProductUseCase implements UpdateProductUseCasePortIn {
     private final IProductRepositoryPortOut productRepositoryPortOut;
 

@@ -6,53 +6,71 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.example.backend.module.adapter.out.persistence.repositories.SuperAdminRepository;
 import com.example.backend.module.domain.models.SuperAdmin;
 import com.example.backend.module.domain.ports.out.ISuperAdminRepositoryPortOut;
+import com.example.backend.module.domain.usecases.CreateSuperAdminUseCase;
+import com.example.backend.module.domain.usecases.DeleteSuperAdminUseCase;
+import com.example.backend.module.domain.usecases.GetSuperAdminUseCase;
+import com.example.backend.module.domain.usecases.UpdateSuperAdminUseCase;
 
 @Component
-public class SuperAdminPersistenceAdapter implements ISuperAdminRepositoryPortOut {
+public class SuperAdminPersistenceAdapter {
+
+    private final CreateSuperAdminUseCase createSuperAdminUseCase;
+    private final GetSuperAdminUseCase getSuperAdminUseCase;
+    private final UpdateSuperAdminUseCase updateSuperAdminUseCase;
+    private final DeleteSuperAdminUseCase deleteSuperAdminUseCase;
+    private final ISuperAdminRepositoryPortOut superAdminRepositoryPortOut;
 
     @Autowired
-    private SuperAdminRepository superAdminRepository;
-
-    @Override
-    public Optional<SuperAdmin> findByCpf(String cpf) {
-        return superAdminRepository.findByCpf(cpf);
+    public SuperAdminPersistenceAdapter(CreateSuperAdminUseCase createSuperAdminUseCase,
+            GetSuperAdminUseCase getSuperAdminUseCase,
+            UpdateSuperAdminUseCase updateSuperAdminUseCase,
+            DeleteSuperAdminUseCase deleteSuperAdminUseCase,
+            ISuperAdminRepositoryPortOut superAdminRepositoryPortOut) {
+        this.createSuperAdminUseCase = createSuperAdminUseCase;
+        this.getSuperAdminUseCase = getSuperAdminUseCase;
+        this.updateSuperAdminUseCase = updateSuperAdminUseCase;
+        this.deleteSuperAdminUseCase = deleteSuperAdminUseCase;
+        this.superAdminRepositoryPortOut = superAdminRepositoryPortOut;
     }
 
-    @Override
-    public SuperAdmin save(SuperAdmin superAdmin) {
-        return superAdminRepository.save(superAdmin);
-    }
-
-    @Override
     public Optional<SuperAdmin> findById(Long id) {
-        return superAdminRepository.findById(id);
+        return Optional.ofNullable(getSuperAdminUseCase.execute(id));
     }
 
-    @Override
     public Iterable<SuperAdmin> findAll() {
-        return superAdminRepository.findAll();
+        return superAdminRepositoryPortOut.findAll();
     }
 
-    @Override
+    public SuperAdmin save(SuperAdmin entity) {
+        if (entity == null) {
+            throw new IllegalArgumentException("Entity cannot be null");
+        }
+        if (entity.getId() == null) {
+            return createSuperAdminUseCase.execute(entity);
+        } else {
+            return updateSuperAdminUseCase.execute(entity);
+        }
+    }
+
     public void deleteById(Long id) {
-        superAdminRepository.deleteById(id);
+        deleteSuperAdminUseCase.execute(id);
     }
 
-    @Override
-    public Optional<SuperAdmin> findByUsername(String username) {
-        return superAdminRepository.findByUsername(username);
-    }
-
-    @Override
     public Optional<SuperAdmin> findByEmail(String email) {
-        return superAdminRepository.findByEmail(email);
+        return superAdminRepositoryPortOut.findByEmail(email);
     }
 
-    @Override
+    public Optional<SuperAdmin> findByCpf(String cpf) {
+        return superAdminRepositoryPortOut.findByCpf(cpf);
+    }
+
     public List<SuperAdmin> findByActive(Boolean active) {
-        return superAdminRepository.findByActive(active);
+        return superAdminRepositoryPortOut.findByActive(active);
+    }
+
+    public Optional<SuperAdmin> findByUsername(String username) {
+        return superAdminRepositoryPortOut.findByUsername(username);
     }
 }

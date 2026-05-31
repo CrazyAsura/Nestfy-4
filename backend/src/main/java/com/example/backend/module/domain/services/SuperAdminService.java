@@ -1,40 +1,77 @@
 package com.example.backend.module.domain.services;
 
-import com.example.backend.module.domain.models.SuperAdmin;
-import com.example.backend.module.domain.ports.out.ISuperAdminRepositoryPortOut;
-import com.example.backend.module.domain.usecases.CreateSuperAdminUseCase;
-import com.example.backend.module.domain.usecases.DeleteSuperAdminUseCase;
-import com.example.backend.module.domain.usecases.GetSuperAdminUseCase;
-import com.example.backend.module.domain.usecases.UpdateSuperAdminUseCase;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.backend.module.adapter.out.persistence.adapters.SuperAdminPersistenceAdapter;
+import com.example.backend.module.domain.models.SuperAdmin;
 
 @Service
 public class SuperAdminService {
-    private final CreateSuperAdminUseCase createSuperAdminUseCase;
-    private final GetSuperAdminUseCase getSuperAdminUseCase;
-    private final UpdateSuperAdminUseCase updateSuperAdminUseCase;
-    private final DeleteSuperAdminUseCase deleteSuperAdminUseCase;
 
-    public SuperAdminService(ISuperAdminRepositoryPortOut superAdminRepositoryPortOut) {
-        this.createSuperAdminUseCase = new CreateSuperAdminUseCase(superAdminRepositoryPortOut);
-        this.getSuperAdminUseCase = new GetSuperAdminUseCase(superAdminRepositoryPortOut);
-        this.updateSuperAdminUseCase = new UpdateSuperAdminUseCase(superAdminRepositoryPortOut);
-        this.deleteSuperAdminUseCase = new DeleteSuperAdminUseCase(superAdminRepositoryPortOut);
+    private final SuperAdminPersistenceAdapter superAdminPersistenceAdapter;
+
+    @Autowired
+    public SuperAdminService(SuperAdminPersistenceAdapter superAdminPersistenceAdapter) {
+        this.superAdminPersistenceAdapter = superAdminPersistenceAdapter;
     }
 
-    public SuperAdmin createSuperAdmin(SuperAdmin superadmin) {
-        return createSuperAdminUseCase.execute(superadmin);
+    public SuperAdmin createSuperAdmin(SuperAdmin superAdmin) {
+        if (superAdmin == null) {
+            throw new IllegalArgumentException("SuperAdmin cannot be null");
+        }
+        return superAdminPersistenceAdapter.save(superAdmin);
     }
 
     public SuperAdmin getSuperAdmin(Long id) {
-        return getSuperAdminUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        return superAdminPersistenceAdapter.findById(id).orElse(null);
     }
 
-    public SuperAdmin updateSuperAdmin(SuperAdmin superadmin) {
-        return updateSuperAdminUseCase.execute(superadmin);
+    public SuperAdmin updateSuperAdmin(SuperAdmin superAdmin) {
+        if (superAdmin == null) {
+            throw new IllegalArgumentException("SuperAdmin cannot be null");
+        }
+        return superAdminPersistenceAdapter.save(superAdmin);
     }
 
     public void deleteSuperAdmin(Long id) {
-        deleteSuperAdminUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        superAdminPersistenceAdapter.deleteById(id);
+    }
+
+    public Optional<SuperAdmin> findByEmail(String email) {
+        if (email == null) {
+            throw new IllegalArgumentException("email cannot be null");
+        }
+        return superAdminPersistenceAdapter.findByEmail(email);
+    }
+
+    public Optional<SuperAdmin> findByCpf(String cpf) {
+        if (cpf == null) {
+            throw new IllegalArgumentException("cpf cannot be null");
+        }
+        return superAdminPersistenceAdapter.findByCpf(cpf);
+    }
+
+    public List<SuperAdmin> findByActive(Boolean active) {
+        if (active == null) {
+            throw new IllegalArgumentException("active cannot be null");
+        }
+        return superAdminPersistenceAdapter.findByActive(active);
+    }
+
+    public Optional<SuperAdmin> findByUsername(String username) {
+        if (username == null) {
+            throw new IllegalArgumentException("username cannot be null");
+        }
+        return superAdminPersistenceAdapter.findByUsername(username);
     }
 }

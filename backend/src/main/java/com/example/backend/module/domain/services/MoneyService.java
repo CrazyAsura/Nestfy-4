@@ -1,40 +1,53 @@
 package com.example.backend.module.domain.services;
 
-import com.example.backend.module.domain.models.Money;
-import com.example.backend.module.domain.ports.out.IMoneyRepositoryPortOut;
-import com.example.backend.module.domain.usecases.CreateMoneyUseCase;
-import com.example.backend.module.domain.usecases.DeleteMoneyUseCase;
-import com.example.backend.module.domain.usecases.GetMoneyUseCase;
-import com.example.backend.module.domain.usecases.UpdateMoneyUseCase;
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.backend.module.domain.models.*;
+import com.example.backend.module.adapter.out.persistence.adapters.MoneyPersistenceAdapter;
 
 @Service
 public class MoneyService {
-    private final CreateMoneyUseCase createMoneyUseCase;
-    private final GetMoneyUseCase getMoneyUseCase;
-    private final UpdateMoneyUseCase updateMoneyUseCase;
-    private final DeleteMoneyUseCase deleteMoneyUseCase;
 
-    public MoneyService(IMoneyRepositoryPortOut moneyRepositoryPortOut) {
-        this.createMoneyUseCase = new CreateMoneyUseCase(moneyRepositoryPortOut);
-        this.getMoneyUseCase = new GetMoneyUseCase(moneyRepositoryPortOut);
-        this.updateMoneyUseCase = new UpdateMoneyUseCase(moneyRepositoryPortOut);
-        this.deleteMoneyUseCase = new DeleteMoneyUseCase(moneyRepositoryPortOut);
+    private final MoneyPersistenceAdapter moneyPersistenceAdapter;
+
+    @Autowired
+    public MoneyService(MoneyPersistenceAdapter moneyPersistenceAdapter) {
+        this.moneyPersistenceAdapter = moneyPersistenceAdapter;
     }
 
     public Money createMoney(Money money) {
-        return createMoneyUseCase.execute(money);
+        if (money == null) {
+            throw new IllegalArgumentException("Money cannot be null");
+        }
+        return moneyPersistenceAdapter.save(money);
     }
 
     public Money getMoney(Long id) {
-        return getMoneyUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        return moneyPersistenceAdapter.findById(id).orElse(null);
     }
 
     public Money updateMoney(Money money) {
-        return updateMoneyUseCase.execute(money);
+        if (money == null) {
+            throw new IllegalArgumentException("Money cannot be null");
+        }
+        return moneyPersistenceAdapter.save(money);
     }
 
     public void deleteMoney(Long id) {
-        deleteMoneyUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        moneyPersistenceAdapter.deleteById(id);
+    }
+    public Optional<Money> findByClientId(Long clientId) {
+        if (clientId == null) {
+            throw new IllegalArgumentException("clientId cannot be null");
+        }
+        return moneyPersistenceAdapter.findByClientId(clientId);
     }
 }

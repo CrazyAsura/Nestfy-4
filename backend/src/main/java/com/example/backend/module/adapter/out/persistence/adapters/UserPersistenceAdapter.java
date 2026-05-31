@@ -6,60 +6,75 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.example.backend.module.adapter.out.persistence.repositories.UserRepository;
 import com.example.backend.module.domain.models.User;
 import com.example.backend.module.domain.ports.out.IUserRepositoryPortOut;
+import com.example.backend.module.domain.usecases.CreateUserUseCase;
+import com.example.backend.module.domain.usecases.DeleteUserUseCase;
+import com.example.backend.module.domain.usecases.GetUserUseCase;
+import com.example.backend.module.domain.usecases.UpdateUserUseCase;
 
 @Component
-public class UserPersistenceAdapter implements IUserRepositoryPortOut {
+public class UserPersistenceAdapter {
+
+    private final CreateUserUseCase createUserUseCase;
+    private final GetUserUseCase getUserUseCase;
+    private final UpdateUserUseCase updateUserUseCase;
+    private final DeleteUserUseCase deleteUserUseCase;
+    private final IUserRepositoryPortOut userRepositoryPortOut;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Override
-    public User save(User user) {
-        return userRepository.save(user);
+    public UserPersistenceAdapter(CreateUserUseCase createUserUseCase,
+            GetUserUseCase getUserUseCase,
+            UpdateUserUseCase updateUserUseCase,
+            DeleteUserUseCase deleteUserUseCase,
+            IUserRepositoryPortOut userRepositoryPortOut) {
+        this.createUserUseCase = createUserUseCase;
+        this.getUserUseCase = getUserUseCase;
+        this.updateUserUseCase = updateUserUseCase;
+        this.deleteUserUseCase = deleteUserUseCase;
+        this.userRepositoryPortOut = userRepositoryPortOut;
     }
 
-    @Override
     public Optional<User> findById(Long id) {
-        return userRepository.findById(id);
+        return Optional.ofNullable(getUserUseCase.execute(id));
     }
 
-    @Override
     public Iterable<User> findAll() {
-        return userRepository.findAll();
+        return userRepositoryPortOut.findAll();
     }
 
-    @Override
+    public User save(User entity) {
+        if (entity == null) {
+            throw new IllegalArgumentException("Entity cannot be null");
+        }
+        if (entity.getId() == null) {
+            return createUserUseCase.execute(entity);
+        } else {
+            return updateUserUseCase.execute(entity);
+        }
+    }
+
     public void deleteById(Long id) {
-        userRepository.deleteById(id);
+        deleteUserUseCase.execute(id);
     }
 
-    @Override
     public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email).stream().findFirst();
+        return userRepositoryPortOut.findByEmail(email);
     }
 
-    @Override
     public Optional<User> findByCpf(String cpf) {
-        return userRepository.findByCpf(cpf).stream().findFirst();
+        return userRepositoryPortOut.findByCpf(cpf);
     }
 
-    @Override
     public Optional<User> findByCnpj(String cnpj) {
-        return userRepository.findByCnpj(cnpj).stream().findFirst();
+        return userRepositoryPortOut.findByCnpj(cnpj);
     }
 
-    @Override
     public List<User> findByType(String type) {
-        return userRepository.findAll().stream()
-                .filter(u -> u.getType() != null && u.getType().getType() != null && u.getType().getType().name().equalsIgnoreCase(type))
-                .toList();
+        return userRepositoryPortOut.findByType(type);
     }
 
-    @Override
     public List<User> findByActive(Boolean active) {
-        return userRepository.findByActive(active);
+        return userRepositoryPortOut.findByActive(active);
     }
 }

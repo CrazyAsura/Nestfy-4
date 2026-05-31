@@ -1,40 +1,60 @@
 package com.example.backend.module.domain.services;
 
-import com.example.backend.module.domain.models.PaymentMethod;
-import com.example.backend.module.domain.ports.out.IPaymentMethodRepositoryPortOut;
-import com.example.backend.module.domain.usecases.CreatePaymentMethodUseCase;
-import com.example.backend.module.domain.usecases.DeletePaymentMethodUseCase;
-import com.example.backend.module.domain.usecases.GetPaymentMethodUseCase;
-import com.example.backend.module.domain.usecases.UpdatePaymentMethodUseCase;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.backend.module.domain.models.*;
+import com.example.backend.module.adapter.out.persistence.adapters.PaymentMethodPersistenceAdapter;
 
 @Service
 public class PaymentMethodService {
-    private final CreatePaymentMethodUseCase createPaymentMethodUseCase;
-    private final GetPaymentMethodUseCase getPaymentMethodUseCase;
-    private final UpdatePaymentMethodUseCase updatePaymentMethodUseCase;
-    private final DeletePaymentMethodUseCase deletePaymentMethodUseCase;
 
-    public PaymentMethodService(IPaymentMethodRepositoryPortOut paymentMethodRepositoryPortOut) {
-        this.createPaymentMethodUseCase = new CreatePaymentMethodUseCase(paymentMethodRepositoryPortOut);
-        this.getPaymentMethodUseCase = new GetPaymentMethodUseCase(paymentMethodRepositoryPortOut);
-        this.updatePaymentMethodUseCase = new UpdatePaymentMethodUseCase(paymentMethodRepositoryPortOut);
-        this.deletePaymentMethodUseCase = new DeletePaymentMethodUseCase(paymentMethodRepositoryPortOut);
+    private final PaymentMethodPersistenceAdapter paymentMethodPersistenceAdapter;
+
+    @Autowired
+    public PaymentMethodService(PaymentMethodPersistenceAdapter paymentMethodPersistenceAdapter) {
+        this.paymentMethodPersistenceAdapter = paymentMethodPersistenceAdapter;
     }
 
-    public PaymentMethod createPaymentMethod(PaymentMethod paymentmethod) {
-        return createPaymentMethodUseCase.execute(paymentmethod);
+    public PaymentMethod createPaymentMethod(PaymentMethod paymentMethod) {
+        if (paymentMethod == null) {
+            throw new IllegalArgumentException("PaymentMethod cannot be null");
+        }
+        return paymentMethodPersistenceAdapter.save(paymentMethod);
     }
 
     public PaymentMethod getPaymentMethod(Long id) {
-        return getPaymentMethodUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        return paymentMethodPersistenceAdapter.findById(id).orElse(null);
     }
 
-    public PaymentMethod updatePaymentMethod(PaymentMethod paymentmethod) {
-        return updatePaymentMethodUseCase.execute(paymentmethod);
+    public PaymentMethod updatePaymentMethod(PaymentMethod paymentMethod) {
+        if (paymentMethod == null) {
+            throw new IllegalArgumentException("PaymentMethod cannot be null");
+        }
+        return paymentMethodPersistenceAdapter.save(paymentMethod);
     }
 
     public void deletePaymentMethod(Long id) {
-        deletePaymentMethodUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        paymentMethodPersistenceAdapter.deleteById(id);
+    }
+    public List<PaymentMethod> findByClientId(Long clientId) {
+        if (clientId == null) {
+            throw new IllegalArgumentException("clientId cannot be null");
+        }
+        return paymentMethodPersistenceAdapter.findByClientId(clientId);
+    }
+
+    public List<PaymentMethod> findByActive(Boolean active) {
+        if (active == null) {
+            throw new IllegalArgumentException("active cannot be null");
+        }
+        return paymentMethodPersistenceAdapter.findByActive(active);
     }
 }

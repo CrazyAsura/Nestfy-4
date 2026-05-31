@@ -1,40 +1,60 @@
 package com.example.backend.module.domain.services;
 
-import com.example.backend.module.domain.models.CartItem;
-import com.example.backend.module.domain.ports.out.ICartItemRepositoryPortOut;
-import com.example.backend.module.domain.usecases.CreateCartItemUseCase;
-import com.example.backend.module.domain.usecases.DeleteCartItemUseCase;
-import com.example.backend.module.domain.usecases.GetCartItemUseCase;
-import com.example.backend.module.domain.usecases.UpdateCartItemUseCase;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.backend.module.domain.models.*;
+import com.example.backend.module.adapter.out.persistence.adapters.CartItemPersistenceAdapter;
 
 @Service
 public class CartItemService {
-    private final CreateCartItemUseCase createCartItemUseCase;
-    private final GetCartItemUseCase getCartItemUseCase;
-    private final UpdateCartItemUseCase updateCartItemUseCase;
-    private final DeleteCartItemUseCase deleteCartItemUseCase;
 
-    public CartItemService(ICartItemRepositoryPortOut cartItemRepositoryPortOut) {
-        this.createCartItemUseCase = new CreateCartItemUseCase(cartItemRepositoryPortOut);
-        this.getCartItemUseCase = new GetCartItemUseCase(cartItemRepositoryPortOut);
-        this.updateCartItemUseCase = new UpdateCartItemUseCase(cartItemRepositoryPortOut);
-        this.deleteCartItemUseCase = new DeleteCartItemUseCase(cartItemRepositoryPortOut);
+    private final CartItemPersistenceAdapter cartItemPersistenceAdapter;
+
+    @Autowired
+    public CartItemService(CartItemPersistenceAdapter cartItemPersistenceAdapter) {
+        this.cartItemPersistenceAdapter = cartItemPersistenceAdapter;
     }
 
-    public CartItem createCartItem(CartItem cartitem) {
-        return createCartItemUseCase.execute(cartitem);
+    public CartItem createCartItem(CartItem cartItem) {
+        if (cartItem == null) {
+            throw new IllegalArgumentException("CartItem cannot be null");
+        }
+        return cartItemPersistenceAdapter.save(cartItem);
     }
 
     public CartItem getCartItem(Long id) {
-        return getCartItemUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        return cartItemPersistenceAdapter.findById(id).orElse(null);
     }
 
-    public CartItem updateCartItem(CartItem cartitem) {
-        return updateCartItemUseCase.execute(cartitem);
+    public CartItem updateCartItem(CartItem cartItem) {
+        if (cartItem == null) {
+            throw new IllegalArgumentException("CartItem cannot be null");
+        }
+        return cartItemPersistenceAdapter.save(cartItem);
     }
 
     public void deleteCartItem(Long id) {
-        deleteCartItemUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        cartItemPersistenceAdapter.deleteById(id);
+    }
+    public List<CartItem> findByCartId(Long cartId) {
+        if (cartId == null) {
+            throw new IllegalArgumentException("cartId cannot be null");
+        }
+        return cartItemPersistenceAdapter.findByCartId(cartId);
+    }
+
+    public List<CartItem> findByActive(Boolean active) {
+        if (active == null) {
+            throw new IllegalArgumentException("active cannot be null");
+        }
+        return cartItemPersistenceAdapter.findByActive(active);
     }
 }

@@ -1,40 +1,90 @@
 package com.example.backend.module.domain.services;
 
-import com.example.backend.module.domain.models.Product;
-import com.example.backend.module.domain.ports.out.IProductRepositoryPortOut;
-import com.example.backend.module.domain.usecases.CreateProductUseCase;
-import com.example.backend.module.domain.usecases.DeleteProductUseCase;
-import com.example.backend.module.domain.usecases.GetProductUseCase;
-import com.example.backend.module.domain.usecases.UpdateProductUseCase;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.backend.module.adapter.out.persistence.adapters.ProductPersistenceAdapter;
+import com.example.backend.module.domain.models.Product;
 
 @Service
 public class ProductService {
-    private final CreateProductUseCase createProductUseCase;
-    private final GetProductUseCase getProductUseCase;
-    private final UpdateProductUseCase updateProductUseCase;
-    private final DeleteProductUseCase deleteProductUseCase;
 
-    public ProductService(IProductRepositoryPortOut productRepositoryPortOut) {
-        this.createProductUseCase = new CreateProductUseCase(productRepositoryPortOut);
-        this.getProductUseCase = new GetProductUseCase(productRepositoryPortOut);
-        this.updateProductUseCase = new UpdateProductUseCase(productRepositoryPortOut);
-        this.deleteProductUseCase = new DeleteProductUseCase(productRepositoryPortOut);
+    private final ProductPersistenceAdapter productPersistenceAdapter;
+
+    @Autowired
+    public ProductService(ProductPersistenceAdapter productPersistenceAdapter) {
+        this.productPersistenceAdapter = productPersistenceAdapter;
     }
 
     public Product createProduct(Product product) {
-        return createProductUseCase.execute(product);
+        if (product == null) {
+            throw new IllegalArgumentException("Product cannot be null");
+        }
+        return productPersistenceAdapter.save(product);
     }
 
     public Product getProduct(Long id) {
-        return getProductUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        return productPersistenceAdapter.findById(id).orElse(null);
     }
 
     public Product updateProduct(Product product) {
-        return updateProductUseCase.execute(product);
+        if (product == null) {
+            throw new IllegalArgumentException("Product cannot be null");
+        }
+        return productPersistenceAdapter.save(product);
     }
 
     public void deleteProduct(Long id) {
-        deleteProductUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        productPersistenceAdapter.deleteById(id);
+    }
+
+    public List<Product> findByName(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("name cannot be null");
+        }
+        return productPersistenceAdapter.findByName(name);
+    }
+
+    public List<Product> findByPrice(Double price) {
+        if (price == null) {
+            throw new IllegalArgumentException("price cannot be null");
+        }
+        return productPersistenceAdapter.findByPrice(price);
+    }
+
+    public List<Product> findByDescription(String description) {
+        if (description == null) {
+            throw new IllegalArgumentException("description cannot be null");
+        }
+        return productPersistenceAdapter.findByDescription(description);
+    }
+
+    public List<Product> findByCategory(String category) {
+        if (category == null) {
+            throw new IllegalArgumentException("category cannot be null");
+        }
+        return productPersistenceAdapter.findByCategory(category);
+    }
+
+    public List<Product> findBySupplier(String supplier) {
+        if (supplier == null) {
+            throw new IllegalArgumentException("supplier cannot be null");
+        }
+        return productPersistenceAdapter.findBySupplier(supplier);
+    }
+
+    public List<Product> findByActive(Boolean active) {
+        if (active == null) {
+            throw new IllegalArgumentException("active cannot be null");
+        }
+        return productPersistenceAdapter.findByActive(active);
     }
 }

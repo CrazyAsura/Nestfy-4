@@ -1,40 +1,65 @@
 package com.example.backend.module.domain.services;
 
-import com.example.backend.module.domain.models.Admin;
-import com.example.backend.module.domain.ports.out.IAdminRepositoryPortOut;
-import com.example.backend.module.domain.usecases.CreateAdminUseCase;
-import com.example.backend.module.domain.usecases.DeleteAdminUseCase;
-import com.example.backend.module.domain.usecases.GetAdminUseCase;
-import com.example.backend.module.domain.usecases.UpdateAdminUseCase;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.backend.module.domain.models.*;
+import com.example.backend.module.adapter.out.persistence.adapters.AdminPersistenceAdapter;
 
 @Service
 public class AdminService {
-    private final CreateAdminUseCase createAdminUseCase;
-    private final GetAdminUseCase getAdminUseCase;
-    private final UpdateAdminUseCase updateAdminUseCase;
-    private final DeleteAdminUseCase deleteAdminUseCase;
 
-    public AdminService(IAdminRepositoryPortOut adminRepositoryPortOut) {
-        this.createAdminUseCase = new CreateAdminUseCase(adminRepositoryPortOut);
-        this.getAdminUseCase = new GetAdminUseCase(adminRepositoryPortOut);
-        this.updateAdminUseCase = new UpdateAdminUseCase(adminRepositoryPortOut);
-        this.deleteAdminUseCase = new DeleteAdminUseCase(adminRepositoryPortOut);
+    private final AdminPersistenceAdapter adminPersistenceAdapter;
+
+    @Autowired
+    public AdminService(AdminPersistenceAdapter adminPersistenceAdapter) {
+        this.adminPersistenceAdapter = adminPersistenceAdapter;
     }
 
     public Admin createAdmin(Admin admin) {
-        return createAdminUseCase.execute(admin);
+        if (admin == null) {
+            throw new IllegalArgumentException("Admin cannot be null");
+        }
+        return adminPersistenceAdapter.save(admin);
     }
 
     public Admin getAdmin(Long id) {
-        return getAdminUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        return adminPersistenceAdapter.findById(id).orElse(null);
     }
 
     public Admin updateAdmin(Admin admin) {
-        return updateAdminUseCase.execute(admin);
+        if (admin == null) {
+            throw new IllegalArgumentException("Admin cannot be null");
+        }
+        return adminPersistenceAdapter.save(admin);
     }
 
     public void deleteAdmin(Long id) {
-        deleteAdminUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        adminPersistenceAdapter.deleteById(id);
+    }
+    public Optional<Admin> findByEmail(String email) {
+        if (email == null) {
+            throw new IllegalArgumentException("email cannot be null");
+        }
+        return adminPersistenceAdapter.findByEmail(email);
+    }
+
+    public List<Admin> findByActive(Boolean active) {
+        if (active == null) {
+            throw new IllegalArgumentException("active cannot be null");
+        }
+        return adminPersistenceAdapter.findByActive(active);
+    }
+
+    public Iterable<Admin> findAll() {
+        return adminPersistenceAdapter.findAll();
     }
 }

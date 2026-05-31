@@ -1,9 +1,12 @@
 package com.example.backend.module.domain.usecases;
 
+import org.springframework.stereotype.Component;
+
 import com.example.backend.module.domain.models.Sailor;
 import com.example.backend.module.domain.ports.in.GetSailorUseCasePortIn;
 import com.example.backend.module.domain.ports.out.ISailorRepositoryPortOut;
 
+@Component
 public class GetSailorUseCase implements GetSailorUseCasePortIn {
 
     private final ISailorRepositoryPortOut sailorRepositoryPortOut;

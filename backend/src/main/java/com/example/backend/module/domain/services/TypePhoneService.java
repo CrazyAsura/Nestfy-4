@@ -1,40 +1,64 @@
 package com.example.backend.module.domain.services;
 
-import com.example.backend.module.domain.models.TypePhone;
-import com.example.backend.module.domain.ports.out.ITypePhoneRepositoryPortOut;
-import com.example.backend.module.domain.usecases.CreateTypePhoneUseCase;
-import com.example.backend.module.domain.usecases.DeleteTypePhoneUseCase;
-import com.example.backend.module.domain.usecases.GetTypePhoneUseCase;
-import com.example.backend.module.domain.usecases.UpdateTypePhoneUseCase;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.backend.module.adapter.out.persistence.adapters.TypePhonePersistenceAdapter;
+import com.example.backend.module.domain.models.TypePhone;
+import com.example.backend.module.domain.models.TypePhoneEnum;
+import com.example.backend.module.domain.models.User;
 
 @Service
 public class TypePhoneService {
-    private final CreateTypePhoneUseCase createTypePhoneUseCase;
-    private final GetTypePhoneUseCase getTypePhoneUseCase;
-    private final UpdateTypePhoneUseCase updateTypePhoneUseCase;
-    private final DeleteTypePhoneUseCase deleteTypePhoneUseCase;
 
-    public TypePhoneService(ITypePhoneRepositoryPortOut typePhoneRepositoryPortOut) {
-        this.createTypePhoneUseCase = new CreateTypePhoneUseCase(typePhoneRepositoryPortOut);
-        this.getTypePhoneUseCase = new GetTypePhoneUseCase(typePhoneRepositoryPortOut);
-        this.updateTypePhoneUseCase = new UpdateTypePhoneUseCase(typePhoneRepositoryPortOut);
-        this.deleteTypePhoneUseCase = new DeleteTypePhoneUseCase(typePhoneRepositoryPortOut);
+    private final TypePhonePersistenceAdapter typePhonePersistenceAdapter;
+
+    @Autowired
+    public TypePhoneService(TypePhonePersistenceAdapter typePhonePersistenceAdapter) {
+        this.typePhonePersistenceAdapter = typePhonePersistenceAdapter;
     }
 
-    public TypePhone createTypePhone(TypePhone typephone) {
-        return createTypePhoneUseCase.execute(typephone);
+    public TypePhone createTypePhone(TypePhone typePhone) {
+        if (typePhone == null) {
+            throw new IllegalArgumentException("TypePhone cannot be null");
+        }
+        return typePhonePersistenceAdapter.save(typePhone);
     }
 
     public TypePhone getTypePhone(Long id) {
-        return getTypePhoneUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        return typePhonePersistenceAdapter.findById(id).orElse(null);
     }
 
-    public TypePhone updateTypePhone(TypePhone typephone) {
-        return updateTypePhoneUseCase.execute(typephone);
+    public TypePhone updateTypePhone(TypePhone typePhone) {
+        if (typePhone == null) {
+            throw new IllegalArgumentException("TypePhone cannot be null");
+        }
+        return typePhonePersistenceAdapter.save(typePhone);
     }
 
     public void deleteTypePhone(Long id) {
-        deleteTypePhoneUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        typePhonePersistenceAdapter.deleteById(id);
+    }
+
+    public List<TypePhone> findByType(TypePhoneEnum type) {
+        if (type == null) {
+            throw new IllegalArgumentException("type cannot be null");
+        }
+        return typePhonePersistenceAdapter.findByType(type);
+    }
+
+    public List<TypePhone> findByUser(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("user cannot be null");
+        }
+        return typePhonePersistenceAdapter.findByUser(user);
     }
 }

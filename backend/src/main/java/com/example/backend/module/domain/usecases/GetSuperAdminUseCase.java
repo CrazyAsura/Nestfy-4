@@ -1,8 +1,11 @@
 package com.example.backend.module.domain.usecases;
+
+import org.springframework.stereotype.Component;
 import com.example.backend.module.domain.models.SuperAdmin;
 import com.example.backend.module.domain.ports.in.GetSuperAdminUseCasePortIn;
 import com.example.backend.module.domain.ports.out.ISuperAdminRepositoryPortOut;
 
+@Component
 public class GetSuperAdminUseCase implements GetSuperAdminUseCasePortIn {
     private final ISuperAdminRepositoryPortOut superAdminRepositoryPortOut;
 

@@ -1,7 +1,10 @@
 package com.example.backend.module.domain.usecases;
+
 import com.example.backend.module.domain.ports.in.DeletePIXUseCasePortIn;
 import com.example.backend.module.domain.ports.out.IPIXRepositoryPortOut;
+import org.springframework.stereotype.Component;
 
+@Component
 public class DeletePIXUseCase implements DeletePIXUseCasePortIn {
     private final IPIXRepositoryPortOut pixRepositoryPortOut;
 
@@ -14,4 +17,3 @@ public class DeletePIXUseCase implements DeletePIXUseCasePortIn {
         pixRepositoryPortOut.deleteById(id);
     }
 }
-

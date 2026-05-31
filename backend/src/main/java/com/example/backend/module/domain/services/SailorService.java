@@ -1,40 +1,84 @@
 package com.example.backend.module.domain.services;
 
-import com.example.backend.module.domain.models.Sailor;
-import com.example.backend.module.domain.ports.out.ISailorRepositoryPortOut;
-import com.example.backend.module.domain.usecases.CreateSailorUseCase;
-import com.example.backend.module.domain.usecases.DeleteSailorUseCase;
-import com.example.backend.module.domain.usecases.GetSailorUseCase;
-import com.example.backend.module.domain.usecases.UpdateSailorUseCase;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.backend.module.adapter.out.persistence.adapters.SailorPersistenceAdapter;
+import com.example.backend.module.domain.models.Sailor;
 
 @Service
 public class SailorService {
-    private final CreateSailorUseCase createSailorUseCase;
-    private final GetSailorUseCase getSailorUseCase;
-    private final UpdateSailorUseCase updateSailorUseCase;
-    private final DeleteSailorUseCase deleteSailorUseCase;
 
-    public SailorService(ISailorRepositoryPortOut sailorRepositoryPortOut) {
-        this.createSailorUseCase = new CreateSailorUseCase(sailorRepositoryPortOut);
-        this.getSailorUseCase = new GetSailorUseCase(sailorRepositoryPortOut);
-        this.updateSailorUseCase = new UpdateSailorUseCase(sailorRepositoryPortOut);
-        this.deleteSailorUseCase = new DeleteSailorUseCase(sailorRepositoryPortOut);
+    private final SailorPersistenceAdapter sailorPersistenceAdapter;
+
+    @Autowired
+    public SailorService(SailorPersistenceAdapter sailorPersistenceAdapter) {
+        this.sailorPersistenceAdapter = sailorPersistenceAdapter;
     }
 
     public Sailor createSailor(Sailor sailor) {
-        return createSailorUseCase.execute(sailor);
+        if (sailor == null) {
+            throw new IllegalArgumentException("Sailor cannot be null");
+        }
+        return sailorPersistenceAdapter.save(sailor);
     }
 
     public Sailor getSailor(Long id) {
-        return getSailorUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        return sailorPersistenceAdapter.findById(id).orElse(null);
     }
 
     public Sailor updateSailor(Sailor sailor) {
-        return updateSailorUseCase.execute(sailor);
+        if (sailor == null) {
+            throw new IllegalArgumentException("Sailor cannot be null");
+        }
+        return sailorPersistenceAdapter.save(sailor);
     }
 
     public void deleteSailor(Long id) {
-        deleteSailorUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        sailorPersistenceAdapter.deleteById(id);
+    }
+
+    public Optional<Sailor> findByEmail(String email) {
+        if (email == null) {
+            throw new IllegalArgumentException("email cannot be null");
+        }
+        return sailorPersistenceAdapter.findByEmail(email);
+    }
+
+    public Optional<Sailor> findByCpf(String cpf) {
+        if (cpf == null) {
+            throw new IllegalArgumentException("cpf cannot be null");
+        }
+        return sailorPersistenceAdapter.findByCpf(cpf);
+    }
+
+    public Optional<Sailor> findByCnpj(String cnpj) {
+        if (cnpj == null) {
+            throw new IllegalArgumentException("cnpj cannot be null");
+        }
+        return sailorPersistenceAdapter.findByCnpj(cnpj);
+    }
+
+    public List<Sailor> findByType(String type) {
+        if (type == null) {
+            throw new IllegalArgumentException("type cannot be null");
+        }
+        return sailorPersistenceAdapter.findByType(type);
+    }
+
+    public List<Sailor> findByActive(Boolean active) {
+        if (active == null) {
+            throw new IllegalArgumentException("active cannot be null");
+        }
+        return sailorPersistenceAdapter.findByActive(active);
     }
 }

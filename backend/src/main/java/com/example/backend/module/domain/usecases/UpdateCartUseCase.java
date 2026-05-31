@@ -1,8 +1,11 @@
 package com.example.backend.module.domain.usecases;
+
+import org.springframework.stereotype.Component;
 import com.example.backend.module.domain.models.Cart;
 import com.example.backend.module.domain.ports.in.UpdateCartUseCasePortIn;
 import com.example.backend.module.domain.ports.out.ICartRepositoryPortOut;
 
+@Component
 public class UpdateCartUseCase implements UpdateCartUseCasePortIn {
     private final ICartRepositoryPortOut cartRepositoryPortOut;
 

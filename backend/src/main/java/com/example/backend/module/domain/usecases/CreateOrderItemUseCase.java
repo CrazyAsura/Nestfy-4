@@ -1,8 +1,11 @@
 package com.example.backend.module.domain.usecases;
+
+import org.springframework.stereotype.Component;
 import com.example.backend.module.domain.models.OrderItem;
 import com.example.backend.module.domain.ports.in.CreateOrderItemUseCasePortIn;
 import com.example.backend.module.domain.ports.out.IOrderItemRepositoryPortOut;
 
+@Component
 public class CreateOrderItemUseCase implements CreateOrderItemUseCasePortIn {
     private final IOrderItemRepositoryPortOut orderItemRepositoryPortOut;
 

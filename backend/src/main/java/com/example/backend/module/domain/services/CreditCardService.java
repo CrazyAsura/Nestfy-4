@@ -1,40 +1,61 @@
 package com.example.backend.module.domain.services;
 
-import com.example.backend.module.domain.models.CreditCard;
-import com.example.backend.module.domain.ports.out.ICreditCardRepositoryPortOut;
-import com.example.backend.module.domain.usecases.CreateCreditCardUseCase;
-import com.example.backend.module.domain.usecases.DeleteCreditCardUseCase;
-import com.example.backend.module.domain.usecases.GetCreditCardUseCase;
-import com.example.backend.module.domain.usecases.UpdateCreditCardUseCase;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.backend.module.domain.models.*;
+import com.example.backend.module.adapter.out.persistence.adapters.CreditCardPersistenceAdapter;
 
 @Service
 public class CreditCardService {
-    private final CreateCreditCardUseCase createCreditCardUseCase;
-    private final GetCreditCardUseCase getCreditCardUseCase;
-    private final UpdateCreditCardUseCase updateCreditCardUseCase;
-    private final DeleteCreditCardUseCase deleteCreditCardUseCase;
 
-    public CreditCardService(ICreditCardRepositoryPortOut creditCardRepositoryPortOut) {
-        this.createCreditCardUseCase = new CreateCreditCardUseCase(creditCardRepositoryPortOut);
-        this.getCreditCardUseCase = new GetCreditCardUseCase(creditCardRepositoryPortOut);
-        this.updateCreditCardUseCase = new UpdateCreditCardUseCase(creditCardRepositoryPortOut);
-        this.deleteCreditCardUseCase = new DeleteCreditCardUseCase(creditCardRepositoryPortOut);
+    private final CreditCardPersistenceAdapter creditCardPersistenceAdapter;
+
+    @Autowired
+    public CreditCardService(CreditCardPersistenceAdapter creditCardPersistenceAdapter) {
+        this.creditCardPersistenceAdapter = creditCardPersistenceAdapter;
     }
 
-    public CreditCard createCreditCard(CreditCard creditcard) {
-        return createCreditCardUseCase.execute(creditcard);
+    public CreditCard createCreditCard(CreditCard creditCard) {
+        if (creditCard == null) {
+            throw new IllegalArgumentException("CreditCard cannot be null");
+        }
+        return creditCardPersistenceAdapter.save(creditCard);
     }
 
     public CreditCard getCreditCard(Long id) {
-        return getCreditCardUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        return creditCardPersistenceAdapter.findById(id).orElse(null);
     }
 
-    public CreditCard updateCreditCard(CreditCard creditcard) {
-        return updateCreditCardUseCase.execute(creditcard);
+    public CreditCard updateCreditCard(CreditCard creditCard) {
+        if (creditCard == null) {
+            throw new IllegalArgumentException("CreditCard cannot be null");
+        }
+        return creditCardPersistenceAdapter.save(creditCard);
     }
 
     public void deleteCreditCard(Long id) {
-        deleteCreditCardUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        creditCardPersistenceAdapter.deleteById(id);
+    }
+    public Optional<CreditCard> findByCardNumber(String cardNumber) {
+        if (cardNumber == null) {
+            throw new IllegalArgumentException("cardNumber cannot be null");
+        }
+        return creditCardPersistenceAdapter.findByCardNumber(cardNumber);
+    }
+
+    public List<CreditCard> findByActive(Boolean active) {
+        if (active == null) {
+            throw new IllegalArgumentException("active cannot be null");
+        }
+        return creditCardPersistenceAdapter.findByActive(active);
     }
 }

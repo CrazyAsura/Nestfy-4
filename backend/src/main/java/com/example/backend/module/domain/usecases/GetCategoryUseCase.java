@@ -1,8 +1,11 @@
 package com.example.backend.module.domain.usecases;
+
+import org.springframework.stereotype.Component;
 import com.example.backend.module.domain.models.Category;
 import com.example.backend.module.domain.ports.in.GetCategoryUseCasePortIn;
 import com.example.backend.module.domain.ports.out.ICategoryRepositoryPortOut;
 
+@Component
 public class GetCategoryUseCase implements GetCategoryUseCasePortIn {
     private final ICategoryRepositoryPortOut categoryRepositoryPortOut;
 

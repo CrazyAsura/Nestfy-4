@@ -1,40 +1,69 @@
 package com.example.backend.module.domain.services;
 
-import com.example.backend.module.domain.models.Stock;
-import com.example.backend.module.domain.ports.out.IStockRepositoryPortOut;
-import com.example.backend.module.domain.usecases.CreateStockUseCase;
-import com.example.backend.module.domain.usecases.DeleteStockUseCase;
-import com.example.backend.module.domain.usecases.GetStockUseCase;
-import com.example.backend.module.domain.usecases.UpdateStockUseCase;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.backend.module.adapter.out.persistence.adapters.StockPersistenceAdapter;
+import com.example.backend.module.domain.models.Stock;
 
 @Service
 public class StockService {
-    private final CreateStockUseCase createStockUseCase;
-    private final GetStockUseCase getStockUseCase;
-    private final UpdateStockUseCase updateStockUseCase;
-    private final DeleteStockUseCase deleteStockUseCase;
 
-    public StockService(IStockRepositoryPortOut stockRepositoryPortOut) {
-        this.createStockUseCase = new CreateStockUseCase(stockRepositoryPortOut);
-        this.getStockUseCase = new GetStockUseCase(stockRepositoryPortOut);
-        this.updateStockUseCase = new UpdateStockUseCase(stockRepositoryPortOut);
-        this.deleteStockUseCase = new DeleteStockUseCase(stockRepositoryPortOut);
+    private final StockPersistenceAdapter stockPersistenceAdapter;
+
+    @Autowired
+    public StockService(StockPersistenceAdapter stockPersistenceAdapter) {
+        this.stockPersistenceAdapter = stockPersistenceAdapter;
     }
 
     public Stock createStock(Stock stock) {
-        return createStockUseCase.execute(stock);
+        if (stock == null) {
+            throw new IllegalArgumentException("Stock cannot be null");
+        }
+        return stockPersistenceAdapter.save(stock);
     }
 
     public Stock getStock(Long id) {
-        return getStockUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        return stockPersistenceAdapter.findById(id).orElse(null);
     }
 
     public Stock updateStock(Stock stock) {
-        return updateStockUseCase.execute(stock);
+        if (stock == null) {
+            throw new IllegalArgumentException("Stock cannot be null");
+        }
+        return stockPersistenceAdapter.save(stock);
     }
 
     public void deleteStock(Long id) {
-        deleteStockUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        stockPersistenceAdapter.deleteById(id);
+    }
+
+    public List<Stock> findByProductId(Long productId) {
+        if (productId == null) {
+            throw new IllegalArgumentException("productId cannot be null");
+        }
+        return stockPersistenceAdapter.findByProductId(productId);
+    }
+
+    public List<Stock> findByActive(Boolean active) {
+        if (active == null) {
+            throw new IllegalArgumentException("active cannot be null");
+        }
+        return stockPersistenceAdapter.findByActive(active);
+    }
+
+    public List<Stock> findByStoreId(Long storeId) {
+        if (storeId == null) {
+            throw new IllegalArgumentException("storeId cannot be null");
+        }
+        return stockPersistenceAdapter.findByStoreId(storeId);
     }
 }

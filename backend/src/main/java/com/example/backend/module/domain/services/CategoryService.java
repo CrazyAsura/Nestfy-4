@@ -1,40 +1,60 @@
 package com.example.backend.module.domain.services;
 
-import com.example.backend.module.domain.models.Category;
-import com.example.backend.module.domain.ports.out.ICategoryRepositoryPortOut;
-import com.example.backend.module.domain.usecases.CreateCategoryUseCase;
-import com.example.backend.module.domain.usecases.DeleteCategoryUseCase;
-import com.example.backend.module.domain.usecases.GetCategoryUseCase;
-import com.example.backend.module.domain.usecases.UpdateCategoryUseCase;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.backend.module.domain.models.*;
+import com.example.backend.module.adapter.out.persistence.adapters.CategoryPersistenceAdapter;
 
 @Service
 public class CategoryService {
-    private final CreateCategoryUseCase createCategoryUseCase;
-    private final GetCategoryUseCase getCategoryUseCase;
-    private final UpdateCategoryUseCase updateCategoryUseCase;
-    private final DeleteCategoryUseCase deleteCategoryUseCase;
 
-    public CategoryService(ICategoryRepositoryPortOut categoryRepositoryPortOut) {
-        this.createCategoryUseCase = new CreateCategoryUseCase(categoryRepositoryPortOut);
-        this.getCategoryUseCase = new GetCategoryUseCase(categoryRepositoryPortOut);
-        this.updateCategoryUseCase = new UpdateCategoryUseCase(categoryRepositoryPortOut);
-        this.deleteCategoryUseCase = new DeleteCategoryUseCase(categoryRepositoryPortOut);
+    private final CategoryPersistenceAdapter categoryPersistenceAdapter;
+
+    @Autowired
+    public CategoryService(CategoryPersistenceAdapter categoryPersistenceAdapter) {
+        this.categoryPersistenceAdapter = categoryPersistenceAdapter;
     }
 
     public Category createCategory(Category category) {
-        return createCategoryUseCase.execute(category);
+        if (category == null) {
+            throw new IllegalArgumentException("Category cannot be null");
+        }
+        return categoryPersistenceAdapter.save(category);
     }
 
     public Category getCategory(Long id) {
-        return getCategoryUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        return categoryPersistenceAdapter.findById(id).orElse(null);
     }
 
     public Category updateCategory(Category category) {
-        return updateCategoryUseCase.execute(category);
+        if (category == null) {
+            throw new IllegalArgumentException("Category cannot be null");
+        }
+        return categoryPersistenceAdapter.save(category);
     }
 
     public void deleteCategory(Long id) {
-        deleteCategoryUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        categoryPersistenceAdapter.deleteById(id);
+    }
+    public List<Category> findByName(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("name cannot be null");
+        }
+        return categoryPersistenceAdapter.findByName(name);
+    }
+
+    public List<Category> findByActive(Boolean active) {
+        if (active == null) {
+            throw new IllegalArgumentException("active cannot be null");
+        }
+        return categoryPersistenceAdapter.findByActive(active);
     }
 }

@@ -1,7 +1,10 @@
 package com.example.backend.module.domain.usecases;
+
+import org.springframework.stereotype.Component;
 import com.example.backend.module.domain.ports.in.DeleteTypePhoneUseCasePortIn;
 import com.example.backend.module.domain.ports.out.ITypePhoneRepositoryPortOut;
 
+@Component
 public class DeleteTypePhoneUseCase implements DeleteTypePhoneUseCasePortIn {
     private final ITypePhoneRepositoryPortOut typePhoneRepositoryPortOut;
 

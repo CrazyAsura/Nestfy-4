@@ -1,7 +1,10 @@
 package com.example.backend.module.domain.usecases;
+
+import org.springframework.stereotype.Component;
 import com.example.backend.module.domain.ports.in.DeletePaymentUseCasePortIn;
 import com.example.backend.module.domain.ports.out.IPaymentRepositoryPortOut;
 
+@Component
 public class DeletePaymentUseCase implements DeletePaymentUseCasePortIn {
     private final IPaymentRepositoryPortOut paymentRepositoryPortOut;
 

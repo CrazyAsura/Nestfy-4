@@ -6,44 +6,63 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.example.backend.module.adapter.out.persistence.repositories.AddressRepository;
 import com.example.backend.module.domain.models.Address;
 import com.example.backend.module.domain.ports.out.IAddressRepositoryPortOut;
+import com.example.backend.module.domain.usecases.CreateAddressUseCase;
+import com.example.backend.module.domain.usecases.DeleteAddressUseCase;
+import com.example.backend.module.domain.usecases.GetAddressUseCase;
+import com.example.backend.module.domain.usecases.UpdateAddressUseCase;
 
 @Component
-public class AddressPersistenceAdapter implements IAddressRepositoryPortOut {
+public class AddressPersistenceAdapter {
+
+    private final CreateAddressUseCase createAddressUseCase;
+    private final GetAddressUseCase getAddressUseCase;
+    private final UpdateAddressUseCase updateAddressUseCase;
+    private final DeleteAddressUseCase deleteAddressUseCase;
+    private final IAddressRepositoryPortOut addressRepositoryPortOut;
 
     @Autowired
-    private AddressRepository addressRepository;
-
-    @Override
-    public Address save(Address address) {
-        return addressRepository.save(address);
+    public AddressPersistenceAdapter(CreateAddressUseCase createAddressUseCase,
+            GetAddressUseCase getAddressUseCase,
+            UpdateAddressUseCase updateAddressUseCase,
+            DeleteAddressUseCase deleteAddressUseCase,
+            IAddressRepositoryPortOut addressRepositoryPortOut) {
+        this.createAddressUseCase = createAddressUseCase;
+        this.getAddressUseCase = getAddressUseCase;
+        this.updateAddressUseCase = updateAddressUseCase;
+        this.deleteAddressUseCase = deleteAddressUseCase;
+        this.addressRepositoryPortOut = addressRepositoryPortOut;
     }
 
-    @Override
     public Optional<Address> findById(Long id) {
-        return addressRepository.findById(id);
+        return Optional.ofNullable(getAddressUseCase.execute(id));
     }
 
-    @Override
     public Iterable<Address> findAll() {
-        return addressRepository.findAll();
+        return addressRepositoryPortOut.findAll();
     }
 
-    @Override
+    public Address save(Address entity) {
+        if (entity == null) {
+            throw new IllegalArgumentException("Entity cannot be null");
+        }
+        if (entity.getId() == null) {
+            return createAddressUseCase.execute(entity);
+        } else {
+            return updateAddressUseCase.execute(entity);
+        }
+    }
+
     public void deleteById(Long id) {
-        addressRepository.deleteById(id);
+        deleteAddressUseCase.execute(id);
     }
 
-    @Override
     public List<Address> findByUserId(Long userId) {
-        return addressRepository.findByUserId(userId);
+        return addressRepositoryPortOut.findByUserId(userId);
     }
 
-    @Override
     public List<Address> findByActive(Boolean active) {
-        return addressRepository.findByActive(active);
+        return addressRepositoryPortOut.findByActive(active);
     }
-
 }

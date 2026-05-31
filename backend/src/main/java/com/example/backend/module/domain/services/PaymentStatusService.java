@@ -1,40 +1,61 @@
 package com.example.backend.module.domain.services;
 
-import com.example.backend.module.domain.models.PaymentStatus;
-import com.example.backend.module.domain.ports.out.IPaymentStatusRepositoryPortOut;
-import com.example.backend.module.domain.usecases.CreatePaymentStatusUseCase;
-import com.example.backend.module.domain.usecases.DeletePaymentStatusUseCase;
-import com.example.backend.module.domain.usecases.GetPaymentStatusUseCase;
-import com.example.backend.module.domain.usecases.UpdatePaymentStatusUseCase;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.backend.module.domain.models.*;
+import com.example.backend.module.adapter.out.persistence.adapters.PaymentStatusPersistenceAdapter;
 
 @Service
 public class PaymentStatusService {
-    private final CreatePaymentStatusUseCase createPaymentStatusUseCase;
-    private final GetPaymentStatusUseCase getPaymentStatusUseCase;
-    private final UpdatePaymentStatusUseCase updatePaymentStatusUseCase;
-    private final DeletePaymentStatusUseCase deletePaymentStatusUseCase;
 
-    public PaymentStatusService(IPaymentStatusRepositoryPortOut paymentStatusRepositoryPortOut) {
-        this.createPaymentStatusUseCase = new CreatePaymentStatusUseCase(paymentStatusRepositoryPortOut);
-        this.getPaymentStatusUseCase = new GetPaymentStatusUseCase(paymentStatusRepositoryPortOut);
-        this.updatePaymentStatusUseCase = new UpdatePaymentStatusUseCase(paymentStatusRepositoryPortOut);
-        this.deletePaymentStatusUseCase = new DeletePaymentStatusUseCase(paymentStatusRepositoryPortOut);
+    private final PaymentStatusPersistenceAdapter paymentStatusPersistenceAdapter;
+
+    @Autowired
+    public PaymentStatusService(PaymentStatusPersistenceAdapter paymentStatusPersistenceAdapter) {
+        this.paymentStatusPersistenceAdapter = paymentStatusPersistenceAdapter;
     }
 
-    public PaymentStatus createPaymentStatus(PaymentStatus paymentstatus) {
-        return createPaymentStatusUseCase.execute(paymentstatus);
+    public PaymentStatus createPaymentStatus(PaymentStatus paymentStatus) {
+        if (paymentStatus == null) {
+            throw new IllegalArgumentException("PaymentStatus cannot be null");
+        }
+        return paymentStatusPersistenceAdapter.save(paymentStatus);
     }
 
     public PaymentStatus getPaymentStatus(Long id) {
-        return getPaymentStatusUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        return paymentStatusPersistenceAdapter.findById(id).orElse(null);
     }
 
-    public PaymentStatus updatePaymentStatus(PaymentStatus paymentstatus) {
-        return updatePaymentStatusUseCase.execute(paymentstatus);
+    public PaymentStatus updatePaymentStatus(PaymentStatus paymentStatus) {
+        if (paymentStatus == null) {
+            throw new IllegalArgumentException("PaymentStatus cannot be null");
+        }
+        return paymentStatusPersistenceAdapter.save(paymentStatus);
     }
 
     public void deletePaymentStatus(Long id) {
-        deletePaymentStatusUseCase.execute(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        paymentStatusPersistenceAdapter.deleteById(id);
+    }
+    public Optional<PaymentStatus> findByCode(String code) {
+        if (code == null) {
+            throw new IllegalArgumentException("code cannot be null");
+        }
+        return paymentStatusPersistenceAdapter.findByCode(code);
+    }
+
+    public List<PaymentStatus> findByActive(Boolean active) {
+        if (active == null) {
+            throw new IllegalArgumentException("active cannot be null");
+        }
+        return paymentStatusPersistenceAdapter.findByActive(active);
     }
 }
